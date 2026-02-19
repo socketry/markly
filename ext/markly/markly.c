@@ -1028,6 +1028,36 @@ static VALUE rb_node_set_fence_info(VALUE self, VALUE info) {
 	return Qnil;
 }
 
+/*
+ * Public: Gets fencing details for the current node.
+ *
+ * Returns a {Hash} with `:info`, `:length`, `:character`, and `:offset` keys
+ * for fenced code blocks, `nil` otherwise.
+ */
+static VALUE rb_node_get_fenced(VALUE self) {
+	const char *fence_info;
+	int fence_length = 0;
+	int fence_offset = 0;
+	char fence_character = '\0';
+	cmark_node *node;
+	VALUE result;
+	TypedData_Get_Struct(self, cmark_node, &rb_Markly_Node_Type, node);
+	
+	if (!cmark_node_get_fenced(node, &fence_length, &fence_offset, &fence_character)) {
+		return Qnil;
+	}
+	
+	fence_info = cmark_node_get_fence_info(node);
+	
+	result = rb_hash_new();
+	rb_hash_aset(result, CSTR2SYM("info"), fence_info ? rb_str_new2(fence_info) : rb_str_new("", 0));
+	rb_hash_aset(result, CSTR2SYM("length"), INT2NUM(fence_length));
+	rb_hash_aset(result, CSTR2SYM("character"), rb_str_new(&fence_character, 1));
+	rb_hash_aset(result, CSTR2SYM("offset"), INT2NUM(fence_offset));
+	
+	return result;
+}
+
 static VALUE rb_node_get_tasklist_item_checked(VALUE self) {
 	int tasklist_state;
 	cmark_node *node;
@@ -1242,6 +1272,7 @@ __attribute__((visibility("default"))) void Init_markly(void) {
 	rb_define_method(rb_Markly_Node, "list_tight=", rb_node_set_list_tight, 1);
 	rb_define_method(rb_Markly_Node, "fence_info", rb_node_get_fence_info, 0);
 	rb_define_method(rb_Markly_Node, "fence_info=", rb_node_set_fence_info, 1);
+	rb_define_method(rb_Markly_Node, "fenced", rb_node_get_fenced, 0);
 	rb_define_method(rb_Markly_Node, "table_alignments", rb_node_get_table_alignments, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked?", rb_node_get_tasklist_item_checked, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked=", rb_node_set_tasklist_item_checked, 1);
