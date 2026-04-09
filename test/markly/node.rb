@@ -365,7 +365,6 @@ describe Markly::Node do
 		end
 		
 		it "has correct position for multi-line HTML block" do
-			# Multi-line HTML comment (4 lines total, but ends on line 4)
 			doc = Markly.parse("<!--\nLine 1\nLine 2\n-->")
 			html_node = doc.first_child
 			pos = html_node.source_position
@@ -373,8 +372,7 @@ describe Markly::Node do
 			expect(html_node.type).to be == :html
 			expect(pos[:start_line]).to be == 1
 			# The block starts on line 1 and the closing --> is on line 4
-			expect(pos[:end_line]).to be >= pos[:start_line]
-			expect(pos[:end_line]).to be >= 3  # At least line 3 or more
+			expect(pos[:end_line]).to be == 4
 		end
 		
 		it "has correct position for fenced code block" do
@@ -421,6 +419,101 @@ describe Markly::Node do
 			expect(heading.type).to be == :header
 			expect(pos[:start_line]).to be == 1
 			expect(pos[:end_line]).to be == 1
+		end
+		
+		it "has correct position for multi-line HTML comment (type 2)" do
+			doc = Markly.parse("Para 1\n\n<!--\nContent\n-->\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 5
+		end
+		
+		it "has correct position for multi-line HTML declaration (type 4)" do
+			doc = Markly.parse("Para 1\n\n<!DOCTYPE\nhtml>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 4
+		end
+		
+		it "has correct position for multi-line script block (type 1)" do
+			doc = Markly.parse("Para 1\n\n<script>\nalert(1);\n</script>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 5
+		end
+		
+		it "has correct position for multi-line PHP block (type 3)" do
+			doc = Markly.parse("Para 1\n\n<?php\necho;\n?>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 5
+		end
+		
+		it "has correct position for multi-line declaration block (type 4)" do
+			doc = Markly.parse("Para 1\n\n<!DOCTYPE\nhtml>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 4
+		end
+		
+		it "has correct position for multi-line CDATA block (type 5)" do
+			doc = Markly.parse("Para 1\n\n<![CDATA[\ndata\n]]>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 5
+		end
+		
+		it "has correct position for blank-terminated HTML block (type 6)" do
+			# Types 6-7 end at a blank line, so end_line is the last content line
+			doc = Markly.parse("<div>\ncontent\n</div>\n\nPara 2")
+			html_node = doc.first_child
+			pos = html_node.source_position
+			
+			expect(html_node.type).to be == :html
+			expect(pos[:start_line]).to be == 1
+			expect(pos[:end_line]).to be == 3
 		end
 		
 		it "ensures all nodes have valid position ranges" do
