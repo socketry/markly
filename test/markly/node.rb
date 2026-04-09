@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2023-2025, by Samuel Williams.
-# Copyright, 2025, by Peter H. Boling.
+# Copyright, 2023-2026, by Samuel Williams.
+# Copyright, 2025-2026, by Peter H. Boling.
 
 require "markly"
 

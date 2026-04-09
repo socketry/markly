@@ -18,7 +18,6 @@ jobs:
           - macos
         
         ruby:
-          - "3.2"
           - "3.3"
           - "3.4"
           - "4.0"
@@ -45,4 +44,4 @@ jobs:
     
     - name: Run tests
       timeout-minutes: 10
-      run: bundle exec bake build test
+      run: bundle exec bake test

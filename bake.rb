@@ -5,7 +5,7 @@
 # Copyright, 2015-2019, by Garen Torikian.
 # Copyright, 2016, by Yuki Izumi.
 # Copyright, 2017, by Ashe Connor.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 $LOAD_PATH << ::File.expand_path("ext", __dir__)
 
@@ -15,6 +15,17 @@ $LOAD_PATH << ::File.expand_path("ext", __dir__)
 def after_gem_release_version_increment(version)
 	context["releases:update"].call(version)
 	context["utopia:project:update"].call
+end
+
+# Create a GitHub release for the given tag.
+#
+# @parameter tag [String] The tag to create a release for.
+def after_gem_release(tag:, **options)
+	context["releases:github:release"].call(tag)
+end
+
+def before_test
+	build
 end
 
 def build

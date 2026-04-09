@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Markly::VERSION
 	
 	spec.summary = "CommonMark parser and renderer. Written in C, wrapped in Ruby."
-	spec.authors = ["Garen Torikian", "Yuki Izumi", "Samuel Williams", "John MacFarlane", "Ashe Connor", "Nick Wellnhofer", "Brett Walker", "Andrew Anderson", "Ben Woosley", "Goro Fuji", "Olle Jonsson", "Tomoya Chiba", "Akira Matsuda", "Danny Iachini", "Henrik Nyh", "Jerry van Leeuwen", "Michael Camilleri", "Mu-An Chiou", "Peter H. Boling", "Roberto Hidalgo", "Ross Kaffenberger", "Vitaliy Klachkov"]
+	spec.authors = ["Garen Torikian", "Samuel Williams", "Yuki Izumi", "John MacFarlane", "Ashe Connor", "Nick Wellnhofer", "Brett Walker", "Andrew Anderson", "Ben Woosley", "Goro Fuji", "Olle Jonsson", "Peter H. Boling", "Tomoya Chiba", "Akira Matsuda", "Danny Iachini", "Henrik Nyh", "Jerry van Leeuwen", "Michael Camilleri", "Mu-An Chiou", "Roberto Hidalgo", "Ross Kaffenberger", "Vitaliy Klachkov"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ["release.cert"]
@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
 	
 	spec.extensions = ["ext/markly/extconf.rb"]
 	
-	spec.required_ruby_version = ">= 3.2"
+	spec.required_ruby_version = ">= 3.3"
 end

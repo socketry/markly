@@ -6,7 +6,7 @@
 # Copyright, 2017, by Yuki Izumi.
 # Copyright, 2017-2019, by Ashe Connor.
 # Copyright, 2018, by Michael Camilleri.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require_relative "generic"
 require_relative "headings"
@@ -69,8 +69,7 @@ module Markly
 						out("<section#{id_for(node)}>")
 					end
 					
-					out("<h", node.header_level, "#{source_position(node)}>", :children,
-							"</h", node.header_level, ">")
+					out("<h", node.header_level, "#{source_position(node)}>", :children, "</h", node.header_level, ">")
 				end
 			end
 			

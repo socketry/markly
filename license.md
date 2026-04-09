@@ -18,10 +18,10 @@ Copyright, 2018, by Danny Iachini.
 Copyright, 2019-2020, by Tomoya Chiba.  
 Copyright, 2019, by Brett Walker.  
 Copyright, 2020-2025, by Olle Jonsson.  
-Copyright, 2020-2025, by Samuel Williams.  
+Copyright, 2020-2026, by Samuel Williams.  
 Copyright, 2024, by Ross Kaffenberger.  
 Copyright, 2025, by Henrik Nyh.  
-Copyright, 2025, by Peter H. Boling.  
+Copyright, 2025-2026, by Peter H. Boling.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
