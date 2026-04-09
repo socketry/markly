@@ -77,11 +77,25 @@ static CMARK_INLINE bool S_is_space_or_tab(char c) {
 // - Document node (special case)
 // - Fenced code blocks (end on the closing fence line)
 // - Setext headings (end on the underline)
-// - Any block finalized on the same line it started (e.g., single-line HTML blocks)
+// - HTML blocks types 1-5 per CommonMark spec §4.6 (end on the line
+//   containing the closing marker)
+// - Any block finalized on the same line it started (e.g., single-line blocks)
 static CMARK_INLINE bool S_ends_on_current_line(cmark_parser *parser, cmark_node *b) {
   return S_type(b) == CMARK_NODE_DOCUMENT ||
          (S_type(b) == CMARK_NODE_CODE_BLOCK && b->as.code.fenced) ||
          (S_type(b) == CMARK_NODE_HEADING && b->as.heading.setext) ||
+         // HTML block types per CommonMark spec §4.6:
+         //   1: <script>, <pre>, <style>, <textarea> (ends at </tag>)
+         //   2: <!-- (ends at -->)
+         //   3: <? (ends at ?>)
+         //   4: <! + letter (ends at >)
+         //   5: <![CDATA[ (ends at ]]>)
+         // All five end on the line containing their closing marker,
+         // similar to fenced code blocks.
+         // Types 6-7 end at a blank line, so their last content line is
+         // the previous line and they should NOT match here.
+         (S_type(b) == CMARK_NODE_HTML_BLOCK && b->as.html_block_type >= 1 &&
+          b->as.html_block_type <= 5) ||
          // Single-line blocks: finalized on same line they started
          b->start_line == parser->line_number;
 }
