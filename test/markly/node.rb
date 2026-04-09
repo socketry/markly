@@ -435,6 +435,20 @@ describe Markly::Node do
 			expect(pos[:end_line]).to be == 5
 		end
 		
+		it "has correct position for multi-line HTML declaration (type 4)" do
+			doc = Markly.parse("Para 1\n\n<!DOCTYPE\nhtml>\n\nPara 2")
+			
+			html_node = nil
+			doc.each do |node|
+				html_node = node if node.type == :html
+			end
+			
+			expect(html_node).not.to be_nil
+			pos = html_node.source_position
+			expect(pos[:start_line]).to be == 3
+			expect(pos[:end_line]).to be == 4
+		end
+		
 		it "has correct position for multi-line script block (type 1)" do
 			doc = Markly.parse("Para 1\n\n<script>\nalert(1);\n</script>\n\nPara 2")
 			
