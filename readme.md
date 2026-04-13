@@ -24,7 +24,7 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
 Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
 
-### Unreleased
+### v0.16.0
 
   - Update `cmark-gfm` from upstream, including a denial-of-service fix for tables with a large number of autocompleted cells, corrected `end_line` source positions for single-line and multi-line HTML blocks, and a fix for trailing newlines when rendering inline nodes.
   - Add support for front matter (`CMARK_OPT_FRONT_MATTER`): a `---` delimited block at the start of a document is captured as a `CMARK_NODE_FRONT_MATTER` node.  The raw content is available via `node.string_content` and an optional format hint (e.g. `"yaml"`, `"toml"`) via `node.fence_info`.
