@@ -64,6 +64,13 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_DOCUMENT:
       cmark_strbuf_puts(xml, " xmlns=\"http://commonmark.org/xml/1.0\"");
       break;
+    case CMARK_NODE_FRONT_MATTER:
+      cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
+      escape_xml(xml, node->as.code.literal.data, node->as.code.literal.len);
+      cmark_strbuf_puts(xml, "</");
+      cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
+      literal = true;
+      break;
     case CMARK_NODE_TEXT:
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:

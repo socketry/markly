@@ -18,8 +18,14 @@ module Markly
 	STRIKETHROUGH_DOUBLE_TILDE = 1 << 14
 	# Allow raw/custom HTML and unsafe links.
 	UNSAFE = 1 << 17
+	# Parse front matter ("---" delimited block at start of document).
+	# The raw content is available via node.string_content and the optional
+	# format hint (e.g. "yaml", "toml") via node.fence_info; interpretation
+	# is left to the caller.
+	FRONT_MATTER = 1 << 18
 	
 	PARSE_FLAGS = {
+		front_matter: FRONT_MATTER,
 		validate_utf8: VALIDATE_UTF8,
 		smart_quotes: SMART,
 		liberal_html_tags: LIBERAL_HTML_TAG,

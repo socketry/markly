@@ -457,6 +457,9 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     }
     break;
 
+  case CMARK_NODE_FRONT_MATTER:
+    break;
+
   default:
     assert(false);
     break;

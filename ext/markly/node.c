@@ -148,6 +148,7 @@ cmark_node *cmark_node_new(cmark_node_type type) {
 static void free_node_as(cmark_node *node) {
   switch (node->type) {
     case CMARK_NODE_CODE_BLOCK:
+    case CMARK_NODE_FRONT_MATTER:
     cmark_chunk_free(NODE_MEM(node), &node->as.code.info);
     cmark_chunk_free(NODE_MEM(node), &node->as.code.literal);
       break;
@@ -288,6 +289,8 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
+  case CMARK_NODE_FRONT_MATTER:
+    return "front_matter";
   }
 
   return "<unknown>";
@@ -381,6 +384,7 @@ const char *cmark_node_get_literal(cmark_node *node) {
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.literal);
 
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FRONT_MATTER:
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.code.literal);
 
   default:
@@ -405,6 +409,7 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
     return 1;
 
   case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FRONT_MATTER:
     cmark_chunk_set_cstr(NODE_MEM(node), &node->as.code.literal, content);
     return 1;
 
@@ -595,7 +600,8 @@ const char *cmark_node_get_fence_info(cmark_node *node) {
     return NULL;
   }
 
-  if (node->type == CMARK_NODE_CODE_BLOCK) {
+  if (node->type == CMARK_NODE_CODE_BLOCK ||
+      node->type == CMARK_NODE_FRONT_MATTER) {
     return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.code.info);
   } else {
     return NULL;
@@ -607,7 +613,8 @@ int cmark_node_set_fence_info(cmark_node *node, const char *info) {
     return 0;
   }
 
-  if (node->type == CMARK_NODE_CODE_BLOCK) {
+  if (node->type == CMARK_NODE_CODE_BLOCK ||
+      node->type == CMARK_NODE_FRONT_MATTER) {
     cmark_chunk_set_cstr(NODE_MEM(node), &node->as.code.info, info);
     return 1;
   } else {

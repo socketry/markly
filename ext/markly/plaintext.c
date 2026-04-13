@@ -196,6 +196,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       cmark_strbuf_truncate(renderer->prefix, renderer->prefix->size - 4);
     }
     break;
+  case CMARK_NODE_FRONT_MATTER:
+    break;
+
   default:
     assert(false);
     break;

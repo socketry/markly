@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "syntax_extension.h"
 #include "cmark-gfm-core-extensions.h"
+#include "front_matter.h"
 
 static VALUE rb_Markly;
 static VALUE rb_Markly_Error;
@@ -34,6 +35,7 @@ static VALUE sym_link;
 static VALUE sym_image;
 static VALUE sym_footnote_reference;
 static VALUE sym_footnote_definition;
+static VALUE sym_front_matter;
 
 static VALUE sym_bullet_list;
 static VALUE sym_ordered_list;
@@ -415,6 +417,9 @@ static VALUE rb_node_get_type(VALUE self) {
 		break;
 	case CMARK_NODE_FOOTNOTE_DEFINITION:
 		symbol = sym_footnote_definition;
+		break;
+	case CMARK_NODE_FRONT_MATTER:
+		symbol = sym_front_matter;
 		break;
 	default:
 		if (node->extension) {
@@ -1185,6 +1190,7 @@ __attribute__((visibility("default"))) void Init_markly(void) {
 	sym_image = ID2SYM(rb_intern("image"));
 	sym_footnote_reference = ID2SYM(rb_intern("footnote_reference"));
 	sym_footnote_definition = ID2SYM(rb_intern("footnote_definition"));
+	sym_front_matter = ID2SYM(rb_intern("front_matter"));
 	
 	sym_bullet_list = ID2SYM(rb_intern("bullet_list"));
 	sym_ordered_list = ID2SYM(rb_intern("ordered_list"));

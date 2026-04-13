@@ -1,4 +1,4 @@
 [submodule "cmark-gfm"]
 	path = cmark-gfm
-	url = https://github.com/github/cmark-gfm.git
+	url = https://github.com/socketry/cmark-gfm.git
 	ignore = dirty

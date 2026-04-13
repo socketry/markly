@@ -46,7 +46,7 @@ def clean
 end
 
 def format
-	system("clang-format -style llvm -i ext/markly/*.c ext/markly/*.h")
+	system("clang-format -style llvm -i ext/markly/*.c ext/markly/*.h ext/markly/extensions/*.c ext/markly/extensions/*.h")
 end
 
 def benchmark
@@ -71,9 +71,9 @@ def synchronize_upstream
 	cmark_gfm = root/"cmark-gfm"
 	
 	(cmark_gfm/"src").glob("**/*").copy(ext_markly)
-	(cmark_gfm/"extensions").glob("**/*").copy(ext_markly)
+	(cmark_gfm/"extensions").glob("**/*").copy(ext_markly/"extensions")
 	(cmark_gfm/"build/src").glob("config.h").copy(ext_markly)
 	(cmark_gfm/"build/src").glob("cmark-gfm_export.h").copy(ext_markly)
 	(cmark_gfm/"build/src").glob("cmark-gfm_version.h").copy(ext_markly)
-	(cmark_gfm/"build/extensions").glob("cmark-gfm-extensions_export.h").copy(ext_markly)
+	(cmark_gfm/"build/extensions").glob("cmark-gfm-extensions_export.h").copy(ext_markly/"extensions")
 end

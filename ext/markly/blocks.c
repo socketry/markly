@@ -23,6 +23,7 @@
 #include "houdini.h"
 #include "buffer.h"
 #include "footnotes.h"
+#include "front_matter.h"
 
 #define CODE_INDENT 4
 #define TAB_STOP 4
@@ -68,16 +69,12 @@ static CMARK_INLINE bool S_is_line_end_char(char c) {
   return (c == '\n' || c == '\r');
 }
 
-static CMARK_INLINE bool S_is_space_or_tab(char c) {
-  return (c == ' ' || c == '\t');
-}
-
 // Returns true if block is being finalized on the same line it ends.
 // This happens for:
 // - Document node (special case)
 // - Fenced code blocks (end on the closing fence line)
 // - Setext headings (end on the underline)
-// - HTML blocks types 1-5 per CommonMark spec §4.6 (end on the line
+// - HTML block types 1-5 per CommonMark spec §4.6 (end on the line
 //   containing the closing marker)
 // - Any block finalized on the same line it started (e.g., single-line blocks)
 static CMARK_INLINE bool S_ends_on_current_line(cmark_parser *parser, cmark_node *b) {
@@ -98,6 +95,10 @@ static CMARK_INLINE bool S_ends_on_current_line(cmark_parser *parser, cmark_node
           b->as.html_block_type <= 5) ||
          // Single-line blocks: finalized on same line they started
          b->start_line == parser->line_number;
+}
+
+static CMARK_INLINE bool S_is_space_or_tab(char c) {
+  return (c == ' ' || c == '\t');
 }
 
 static void S_parser_feed(cmark_parser *parser, const unsigned char *buffer,
@@ -159,6 +160,8 @@ static void cmark_parser_reset(cmark_parser *parser) {
 
   cmark_strbuf_init(parser->mem, &parser->curline, 256);
   cmark_strbuf_init(parser->mem, &parser->linebuf, 0);
+  cmark_strbuf_init(parser->mem, &parser->front_matter_buf, 0);
+  cmark_strbuf_init(parser->mem, &parser->front_matter_info, 0);
 
   cmark_node *document = make_document(parser->mem);
 
@@ -189,6 +192,8 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_parser_dispose(parser);
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
+  cmark_strbuf_free(&parser->front_matter_buf);
+  cmark_strbuf_free(&parser->front_matter_info);
   cmark_llist_free(parser->mem, parser->syntax_extensions);
   cmark_llist_free(parser->mem, parser->inline_syntax_extensions);
   mem->free(parser);
@@ -1244,7 +1249,8 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
     } else if (!indented &&
-               parser->options & CMARK_OPT_FOOTNOTES &&
+               (parser->options & CMARK_OPT_FOOTNOTES) &&
+               depth < MAX_LIST_DEPTH &&
                (matched = scan_footnote_definition(input, parser->first_nonspace))) {
       cmark_chunk c = cmark_chunk_dup(input, parser->first_nonspace + 2, matched - 2);
 
@@ -1516,6 +1522,10 @@ static void S_process_line(cmark_parser *parser, const unsigned char *buffer,
 
   parser->line_number++;
 
+  if ((parser->options & CMARK_OPT_FRONT_MATTER) &&
+      cmark_front_matter_process_line(parser, &input))
+    goto finished;
+
   last_matched_container = check_open_blocks(parser, &input, &all_matched);
 
   if (!last_matched_container)
@@ -1556,12 +1566,20 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
     cmark_strbuf_clear(&parser->linebuf);
   }
 
+  // If front matter scanning was still active when the document ended, no
+  // closing delimiter was found.  The entire document (after the opening ---)
+  // is treated as front matter.
+  if ((parser->options & CMARK_OPT_FRONT_MATTER) && parser->front_matter_scanning)
+    cmark_front_matter_process_line(parser, NULL);
+
   finalize_document(parser);
 
   cmark_consolidate_text_nodes(parser->root);
 
   cmark_strbuf_free(&parser->curline);
   cmark_strbuf_free(&parser->linebuf);
+  cmark_strbuf_free(&parser->front_matter_buf);
+  cmark_strbuf_free(&parser->front_matter_info);
 
 #if CMARK_DEBUG_NODES
   if (cmark_node_check(parser->root, stderr)) {
