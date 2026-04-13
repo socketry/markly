@@ -215,6 +215,39 @@ describe Markly::Node do
 		end
 	end
 	
+	with "#fenced" do
+		let(:fenced_backtick_node) {Markly.parse("``` ruby\nputs 'wow'\n```").first_child}
+		let(:fenced_tilde_node) {Markly.parse("~~~ ruby\nputs 'wow'\n~~~").first_child}
+		let(:indented_code_node) {Markly.parse("    puts 'wow'").first_child}
+		let(:paragraph_node) {Markly.parse("hello").first_child}
+		
+		it "returns fenced metadata for backtick fences" do
+			expect(fenced_backtick_node.fenced).to be == {
+				info: "ruby",
+				length: 3,
+				character: "`",
+				offset: 0
+			}
+		end
+		
+		it "returns fenced metadata for tilde fences" do
+			expect(fenced_tilde_node.fenced).to be == {
+				info: "ruby",
+				length: 3,
+				character: "~",
+				offset: 0
+			}
+		end
+		
+		it "returns nil for non-fenced code blocks" do
+			expect(indented_code_node.fenced).to be_nil
+		end
+		
+		it "returns nil for non-code nodes" do
+			expect(paragraph_node.fenced).to be_nil
+		end
+	end
+	
 	with "#find_header" do
 		let(:document) {Markly.parse("# Heading\n\n## Subheading")}
 		
