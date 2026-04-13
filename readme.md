@@ -2,7 +2,7 @@
 
 A parser and abstract syntax tree for Markdown documents (CommonMark compatible) in Ruby. Originally forked from [CommonMarker](https://github.com/gjtorikian/commonmarker). It also includes extensions to the CommonMark spec as documented in the [GitHub Flavored Markdown spec](http://github.github.com/gfm/), such as support for tables, strikethroughs, and autolinking.
 
-[![Development Status](https://github.com/ioquatix/markly/workflows/Test/badge.svg)](https://github.com/ioquatix/markly/actions?workflow=Test)
+[![Development Status](https://github.com/socketry/markly/workflows/Test/badge.svg)](https://github.com/socketry/markly/actions?workflow=Test)
 
 ## Motivation
 
@@ -12,17 +12,23 @@ It should be noted that `commonmarker` re-introduced AST access, but the origina
 
 ## Usage
 
-Please see the [project documentation](https://ioquatix.github.io/markly/) for more details.
+Please see the [project documentation](https://socketry.github.io/markly/) for more details.
 
-  - [Getting Started](https://ioquatix.github.io/markly/guides/getting-started/index) - This guide explains now to install and use Markly.
+  - [Getting Started](https://socketry.github.io/markly/guides/getting-started/index) - This guide explains now to install and use Markly.
 
-  - [Abstract Syntax Tree](https://ioquatix.github.io/markly/guides/abstract-syntax-tree/index) - This guide explains how to use Markly's abstract syntax tree (AST) to parse and manipulate Markdown documents.
+  - [Abstract Syntax Tree](https://socketry.github.io/markly/guides/abstract-syntax-tree/index) - This guide explains how to use Markly's abstract syntax tree (AST) to parse and manipulate Markdown documents.
 
-  - [Headings](https://ioquatix.github.io/markly/guides/headings/index) - This guide explains how to work with headings in Markly, including extracting them for navigation and handling duplicate heading text.
+  - [Headings](https://socketry.github.io/markly/guides/headings/index) - This guide explains how to work with headings in Markly, including extracting them for navigation and handling duplicate heading text.
 
 ## Releases
 
-Please see the [project releases](https://ioquatix.github.io/markly/releases/index) for all releases.
+Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
+
+### Unreleased
+
+  - Update `cmark-gfm` from upstream, including a denial-of-service fix for tables with a large number of autocompleted cells, corrected `end_line` source positions for single-line and multi-line HTML blocks, and a fix for trailing newlines when rendering inline nodes.
+  - Add support for front matter (`CMARK_OPT_FRONT_MATTER`): a `---` delimited block at the start of a document is captured as a `CMARK_NODE_FRONT_MATTER` node.  The raw content is available via `node.string_content` and an optional format hint (e.g. `"yaml"`, `"toml"`) via `node.fence_info`.
+  - Allow `:` in HTML tag names to support XML namespace prefixes (e.g. `<svg:circle>`, `<xhtml:div>`).
 
 ### v0.15.1
 

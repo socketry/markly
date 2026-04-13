@@ -6,7 +6,7 @@
 # Copyright, 2015-2019, by Garen Torikian.
 # Copyright, 2016-2017, by Yuki Izumi.
 # Copyright, 2017, by Ashe Connor.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require "mkmf"
 
@@ -15,7 +15,7 @@ append_cflags(["-O3", "-Wall", "-Wno-unknown-pragmas", "-std=c99"])
 # Include the extensions/ subdirectory, mirroring the cmark-gfm source layout.
 $INCFLAGS << " -I$(srcdir)/extensions"
 $VPATH    << "$(srcdir)/extensions"
-$srcs = (Dir["#{$srcdir}/*.c"] + Dir["#{$srcdir}/extensions/*.c"]).map { |f| File.basename(f) }
+$srcs = (Dir["#{$srcdir}/*.c"] + Dir["#{$srcdir}/extensions/*.c"]).map{|f| File.basename(f)}
 
 gem_name = File.basename(__dir__)
 extension_name = "markly"
