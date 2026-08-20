@@ -13,11 +13,6 @@ require_relative "headings"
 
 require "cgi/escape"
 
-# Compatibility for older Ruby versions where escape_html alias doesn't exist:
-unless CGI.respond_to?(:escape_html)
-	require "cgi"
-end
-
 module Markly
 	module Renderer
 		# Renders Markdown node trees as HTML.
@@ -58,7 +53,8 @@ module Markly
 			def id_for(node)
 				if @headings
 					anchor = @headings.anchor_for(node)
-					return " id=\"#{CGI.escape_html anchor}\""
+					# `CGI.escape_html` is not exposed by `cgi/escape` on Ruby 3.4:
+					return " id=\"#{CGI.escapeHTML anchor}\""
 				end
 			end
 			

@@ -20,7 +20,6 @@ module Markly
 			def initialize(flags: DEFAULT, extensions: [])
 				@flags = flags
 				@stream = StringIO.new(+"")
-				@need_blocksep = false
 				@in_tight = false
 				@in_plain = false
 				@tagfilter = extensions.include?(:tagfilter)
@@ -75,9 +74,9 @@ module Markly
 			# Renders a code block node.
 			#
 			# Subclasses should override this callback.
-			# @parameter node [Markly::Node] The code block node.
-			def code_block(node)
-				code_block(node)
+			# @parameter _node [Markly::Node] The code block node.
+			def code_block(_node)
+				raise NotImplementedError, "#{self.class} must implement #code_block"
 			end
 			
 			# Ignores reference-definition nodes, which have no direct output.
@@ -91,18 +90,6 @@ module Markly
 				return if @stream.string.empty? || @stream.string[-1] == "\n"
 				
 				out("\n")
-			end
-			
-			# Writes a separator between block-level nodes.
-			#
-			def blocksep
-				out("\n")
-			end
-			
-			# Writes a container separator unless tight rendering is enabled.
-			#
-			def containersep
-				cr unless @in_tight
 			end
 			
 			# Renders a block surrounded by normalized newlines.
