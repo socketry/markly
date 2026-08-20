@@ -10,9 +10,13 @@ require "pp"
 
 module Markly
 	class Node
+		# Provides concise pretty-printing for Markdown nodes.
 		module Inspect
 			PP_INDENT_SIZE = 2
 			
+			# Returns a pretty-printed representation of the node.
+			#
+			# @returns [String] The formatted node representation.
 			def inspect
 				PP.pp(self, +"", Float::INFINITY)
 			end

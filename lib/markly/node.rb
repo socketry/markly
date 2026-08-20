@@ -11,6 +11,7 @@
 require_relative "node/inspect"
 
 module Markly
+	# Represents a node in a parsed Markdown document tree.
 	class Node
 		include Enumerable
 		include Inspect
@@ -91,6 +92,10 @@ module Markly
 			end
 		end
 		
+		# Finds a direct child header with the given text.
+		#
+		# @parameter title [String] The header text to match.
+		# @returns [Markly::Node, nil] The matching header, if present.
 		def find_header(title)
 			each do |child|
 				if child.type == :header && child.first_child.string_content == title
@@ -127,6 +132,9 @@ module Markly
 			self.delete if replace_header
 		end
 		
+		# Finds the next sibling heading.
+		#
+		# @returns [Markly::Node, nil] The next heading, if present.
 		def next_heading
 			current = self.next
 			while current

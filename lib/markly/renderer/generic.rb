@@ -3,14 +3,20 @@
 # Released under the MIT License.
 # Copyright, 2015-2019, by Garen Torikian.
 # Copyright, 2016-2017, by Yuki Izumi.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require "set"
 require "stringio"
 
 module Markly
+	# Renderers for traversing and serializing Markdown node trees.
 	module Renderer
+		# Base class for renderers implemented in Ruby.
 		class Generic
+			# Initializes a renderer with rendering flags and extensions.
+			#
+			# @parameter flags [Integer] The enabled rendering flags.
+			# @parameter extensions [Array<Symbol>] The enabled extensions.
 			def initialize(flags: DEFAULT, extensions: [])
 				@flags = flags
 				@stream = StringIO.new(+"")
@@ -23,6 +29,9 @@ module Markly
 			attr_accessor :in_tight
 			attr_accessor :in_plain
 			
+			# Writes strings, nodes, arrays of nodes, or child-node markers to the output.
+			#
+			# @parameter args [Array] Values to append or render.
 			def out(*args)
 				args.each do |arg|
 					if arg == :children
@@ -37,6 +46,10 @@ module Markly
 				end
 			end
 			
+			# Renders a node and returns the completed output for document nodes.
+			#
+			# @parameter node [Markly::Node] The node to render.
+			# @returns [String, nil] The output string when rendering a document.
 			def render(node)
 				@node = node
 				if node.type == :document
@@ -49,42 +62,66 @@ module Markly
 				end
 			end
 			
+			# Renders a document node and all of its children.
+			#
+			# @parameter _node [Markly::Node] The document node.
 			def document(_node)
 				out(:children)
 			end
 			
+			# Renders a code block node.
+			#
+			# Subclasses should override this callback.
+			# @parameter node [Markly::Node] The code block node.
 			def code_block(node)
 				code_block(node)
 			end
 			
+			# Ignores reference-definition nodes, which have no direct output.
+			#
+			# @parameter _node [Markly::Node] The reference-definition node.
 			def reference_def(_node); end
 			
+			# Writes a newline unless the output is empty or already ends with one.
 			def cr
 				return if @stream.string.empty? || @stream.string[-1] == "\n"
 				
 				out("\n")
 			end
 			
+			# Writes a separator between block-level nodes.
 			def blocksep
 				out("\n")
 			end
 			
+			# Writes a container separator unless tight rendering is enabled.
 			def containersep
 				cr unless @in_tight
 			end
 			
+			# Renders a block surrounded by normalized newlines.
+			#
+			# @yields The block content to render.
 			def block
 				cr
 				yield
 				cr
 			end
 			
+			# Renders content between opening and closing strings.
+			#
+			# @parameter starter [String] The opening output.
+			# @parameter ender [String] The closing output.
+			# @yields The container content to render.
 			def container(starter, ender)
 				out(starter)
 				yield
 				out(ender)
 			end
 			
+			# Renders a block in plain-text mode, suppressing structural markup.
+			#
+			# @yields The content to render as plain text.
 			def plain
 				old_in_plain = @in_plain
 				@in_plain = true

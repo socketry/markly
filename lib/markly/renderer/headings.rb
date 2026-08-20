@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2025, by Samuel Williams.
+# Copyright, 2025-2026, by Samuel Williams.
 
 module Markly
 	module Renderer
 		# Extracts headings from a markdown document with unique anchor IDs.
 		# Handles duplicate heading text by appending counters (e.g., "deployment", "deployment-2", "deployment-3").
 		class Headings
+			# Initializes an empty heading-anchor registry.
 			def initialize
 				@ids = {}
 			end
@@ -78,4 +79,3 @@ module Markly
 		Heading = Struct.new(:node, :level, :text, :anchor, keyword_init: true)
 	end
 end
-
