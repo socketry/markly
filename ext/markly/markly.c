@@ -11,6 +11,7 @@
 static VALUE rb_Markly;
 static VALUE rb_Markly_Error;
 static VALUE rb_Markly_Node;
+static VALUE rb_Markly_Node_Fence;
 static VALUE rb_Markly_Parser;
 
 static VALUE sym_document;
@@ -1080,6 +1081,30 @@ static VALUE rb_node_set_code_info(VALUE self, VALUE info) {
 	return Qnil;
 }
 
+/*
+ * Public: Gets fencing details for the current node.
+ *
+ * Returns a {Markly::Node::Fence} for fenced code blocks, `nil` otherwise.
+ */
+static VALUE rb_node_get_fence(VALUE self) {
+	int fence_length = 0;
+	int fence_offset = 0;
+	char fence_character = '\0';
+	cmark_node *node;
+	TypedData_Get_Struct(self, cmark_node, &rb_Markly_Node_Type, node);
+	
+	if (!cmark_node_get_fenced(node, &fence_length, &fence_offset, &fence_character)) {
+		return Qnil;
+	}
+	
+	return rb_struct_new(
+		rb_Markly_Node_Fence,
+		rb_str_new(&fence_character, 1),
+		INT2NUM(fence_length),
+		INT2NUM(fence_offset)
+	);
+}
+
 static VALUE rb_node_get_tasklist_item_checked(VALUE self) {
 	int tasklist_state;
 	cmark_node *node;
@@ -1260,6 +1285,7 @@ __attribute__((visibility("default"))) void Init_markly(void) {
 	rb_Markly_Node = rb_define_class_under(rb_Markly, "Node", rb_cObject);
 	rb_undef_alloc_func(rb_Markly_Node);
 	rb_define_singleton_method(rb_Markly_Node, "new", rb_node_new, 1);
+	rb_Markly_Node_Fence = rb_struct_define_under(rb_Markly_Node, "Fence", "character", "length", "indent", NULL);
 
 	rb_define_method(rb_Markly_Node, "replace", rb_node_replace, 1);
 
@@ -1297,6 +1323,7 @@ __attribute__((visibility("default"))) void Init_markly(void) {
 	rb_define_method(rb_Markly_Node, "fence_info=", rb_node_set_fence_info, 1);
 	rb_define_method(rb_Markly_Node, "code_info", rb_node_get_code_info, 0);
 	rb_define_method(rb_Markly_Node, "code_info=", rb_node_set_code_info, 1);
+	rb_define_method(rb_Markly_Node, "fence", rb_node_get_fence, 0);
 	rb_define_method(rb_Markly_Node, "table_alignments", rb_node_get_table_alignments, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked?", rb_node_get_tasklist_item_checked, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked=", rb_node_set_tasklist_item_checked, 1);

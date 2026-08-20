@@ -100,6 +100,18 @@ blocks and front matter. `Node#code_language` returns the first token of that
 info string, while `Node#fence_info` remains available for compatibility on
 those block nodes.
 
+For a fenced code block, `Node#fence` returns a `Node::Fence` structure with
+the fence character, length, and indentation:
+
+``` ruby
+block = Markly.parse("  ~~~~ ruby\n  Object.new\n  ~~~~").first_child
+
+block.fence
+# => #<struct Markly::Node::Fence character="~", length=4, indent=2>
+```
+
+Indented code blocks and other node types return `nil`.
+
 ## Extensions
 
 Both `render_html` and `parse` take an optional `extensions:` argument defining the extensions you want enabled as your CommonMark document is being processed:
