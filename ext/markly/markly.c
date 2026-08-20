@@ -1033,6 +1033,53 @@ static VALUE rb_node_set_fence_info(VALUE self, VALUE info) {
 	return Qnil;
 }
 
+/*
+ * Public: Gets the code info of the current node (must be a `:code_block`,
+ * `:front_matter`, or inline `:code` node).
+ *
+ * Returns a {String} representing the code info.
+ * Raises a Error if the code info can't be retrieved.
+ */
+static VALUE rb_node_get_code_info(VALUE self) {
+	const char *code_info;
+	cmark_node *node;
+	TypedData_Get_Struct(self, cmark_node, &rb_Markly_Node_Type, node);
+
+	code_info = cmark_node_get_code_info(node);
+
+	if (code_info == NULL) {
+		rb_raise(rb_Markly_Error, "could not get code_info");
+	}
+
+	return rb_str_new2(code_info);
+}
+
+/*
+ * Public: Sets the code info of the current node (must be a `:code_block`,
+ * `:front_matter`, or inline `:code` node).
+ *
+ * info - A {String} representing the new code info, or `nil` to clear it.
+ *
+ * Raises a Error if the code info can't be set.
+ */
+static VALUE rb_node_set_code_info(VALUE self, VALUE info) {
+	const char *text = NULL;
+	cmark_node *node;
+
+	if (!NIL_P(info)) {
+		Check_Type(info, T_STRING);
+		text = StringValueCStr(info);
+	}
+
+	TypedData_Get_Struct(self, cmark_node, &rb_Markly_Node_Type, node);
+
+	if (!cmark_node_set_code_info(node, text)) {
+		rb_raise(rb_Markly_Error, "could not set code_info");
+	}
+
+	return Qnil;
+}
+
 static VALUE rb_node_get_tasklist_item_checked(VALUE self) {
 	int tasklist_state;
 	cmark_node *node;
@@ -1248,6 +1295,8 @@ __attribute__((visibility("default"))) void Init_markly(void) {
 	rb_define_method(rb_Markly_Node, "list_tight=", rb_node_set_list_tight, 1);
 	rb_define_method(rb_Markly_Node, "fence_info", rb_node_get_fence_info, 0);
 	rb_define_method(rb_Markly_Node, "fence_info=", rb_node_set_fence_info, 1);
+	rb_define_method(rb_Markly_Node, "code_info", rb_node_get_code_info, 0);
+	rb_define_method(rb_Markly_Node, "code_info=", rb_node_set_code_info, 1);
 	rb_define_method(rb_Markly_Node, "table_alignments", rb_node_get_table_alignments, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked?", rb_node_get_tasklist_item_checked, 0);
 	rb_define_method(rb_Markly_Node, "tasklist_item_checked=", rb_node_set_tasklist_item_checked, 1);

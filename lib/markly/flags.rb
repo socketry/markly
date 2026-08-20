@@ -20,12 +20,15 @@ module Markly
 	UNSAFE = 1 << 17
 	# Parse front matter ("---" delimited block at start of document).
 	# The raw content is available via node.string_content and the optional
-	# format hint (e.g. "yaml", "toml") via node.fence_info; interpretation
+	# format hint (e.g. "yaml", "toml") via node.code_info; interpretation
 	# is left to the caller.
 	FRONT_MATTER = 1 << 18
+	# Parse language prefixes on inline code spans, e.g. ruby:`Object.new`.
+	INLINE_CODE_INFO = 1 << 19
 	
 	PARSE_FLAGS = {
 		front_matter: FRONT_MATTER,
+		inline_code_info: INLINE_CODE_INFO,
 		validate_utf8: VALIDATE_UTF8,
 		smart_quotes: SMART,
 		liberal_html_tags: LIBERAL_HTML_TAG,

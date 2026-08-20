@@ -12,7 +12,9 @@ describe Markly::Node do
 		let(:input) {"--- yaml\ntitle: Hello\n---\n# Body\n"}
 		let(:document) {Markly.parse(input, flags: flags)}
 		
-		it "exposes the info string via fence_info" do
+		it "exposes the info string via code_info" do
+			expect(document.first_child.code_info).to be == "yaml"
+			expect(document.first_child.code_language).to be == "yaml"
 			expect(document.first_child.fence_info).to be == "yaml"
 		end
 		

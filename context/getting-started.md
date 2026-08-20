@@ -42,7 +42,9 @@ Markly accepts integer flags which control how the Markdown is parsed and render
 | ------------------------------------ | -----------
 | `Markly::DEFAULT`                    | The default parsing system.
 | `Markly::UNSAFE`                     | Allow raw/custom HTML and unsafe links.
+| `Markly::FRONT_MATTER`               | Parse front matter at the start of the document.
 | `Markly::FOOTNOTES`                  | Parse footnotes.
+| `Markly::INLINE_CODE_INFO`           | Parse language prefixes such as `ruby:` on inline code spans.
 | `Markly::LIBERAL_HTML_TAG`           | Support liberal parsing of inline HTML tags.
 | `Markly::SMART`                      | Use smart punctuation (curly quotes, etc.).
 | `Markly::STRIKETHROUGH_DOUBLE_TILDE` | Parse strikethroughs by double tildes (compatibility with [redcarpet](https://github.com/vmg/redcarpet))
@@ -75,6 +77,28 @@ To have multiple options applied, `|` (or) the flags together:
 ``` ruby
 Markly.render_html("\"'Shelob' is my name.\"", flags: Markly::HARD_BREAKS|Markly::SOURCE_POSITION)
 ```
+
+Inline code language prefixes are opt-in. The language is available through
+`Node#code_info` and is rendered as a `language-...` class:
+
+``` ruby
+document = Markly.parse("ruby:`Object.new`", flags: Markly::INLINE_CODE_INFO)
+code = document.first_child.first_child
+
+code.code_info
+# => "ruby"
+
+code.code_language
+# => "ruby"
+
+document.to_html
+# => <p><code class="language-ruby">Object.new</code></p>
+```
+
+`Node#code_info` is also the general info-string accessor for fenced code
+blocks and front matter. `Node#code_language` returns the first token of that
+info string, while `Node#fence_info` remains available for compatibility on
+those block nodes.
 
 ## Extensions
 

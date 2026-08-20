@@ -5,7 +5,7 @@
 # Copyright, 2016-2017, by Yuki Izumi.
 # Copyright, 2017, by Goro Fuji.
 # Copyright, 2018, by Jerry van Leeuwen.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 # Copyright, 2025, by Olle Jonsson.
 
 require_relative "node/inspect"
@@ -61,6 +61,13 @@ module Markly
 		end
 		
 		alias to_markdown to_commonmark
+		
+		# Public: Returns the language identifier from the code info string.
+		#
+		# Returns a {String}, or `nil` when no language is present.
+		def code_language
+			code_info.split(/\s+/, 2).first
+		end
 		
 		# Public: Convert the node to a plain text string.
 		#

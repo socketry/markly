@@ -206,12 +206,22 @@ describe Markly::Node do
 		
 		it "has a fence info" do
 			expect(fence_node.fence_info).to be == "ruby"
+			expect(fence_node.code_info).to be == "ruby"
+			expect(fence_node.code_language).to be == "ruby"
 		end
 		
 		it "can set a fence info" do
 			fence_node.fence_info = "perl"
 			expect(fence_node.fence_info).to be == "perl"
+			expect(fence_node.code_info).to be == "perl"
 			expect(document.to_html).to be =~ /<pre><code class="language-perl">puts 'wow'\n<\/code><\/pre>/
+		end
+		
+		it "can set code info" do
+			fence_node.code_info = "python lineno=5"
+			expect(fence_node.fence_info).to be == "python lineno=5"
+			expect(fence_node.code_info).to be == "python lineno=5"
+			expect(fence_node.code_language).to be == "python"
 		end
 	end
 	

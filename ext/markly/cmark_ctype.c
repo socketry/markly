@@ -42,3 +42,12 @@ int cmark_isalnum(char c) {
 int cmark_isdigit(char c) { return cmark_ctype_class[(uint8_t)c] == 3; }
 
 int cmark_isalpha(char c) { return cmark_ctype_class[(uint8_t)c] == 4; }
+
+int cmark_is_inline_code_info_start_char(char c) {
+  return cmark_isalnum(c);
+}
+
+int cmark_is_inline_code_info_char(char c) {
+  return cmark_is_inline_code_info_start_char(c) || c == '_' || c == '-' ||
+         c == '+' || c == '#' || c == '.';
+}

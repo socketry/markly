@@ -33,6 +33,7 @@
 #  define CMARK_GFM_DEPRECATED_NO_EXPORT CMARK_GFM_NO_EXPORT CMARK_GFM_DEPRECATED
 #endif
 
+/* NOLINTNEXTLINE(readability-avoid-unconditional-preprocessor-if) */
 #if 0 /* DEFINE_NO_DEPRECATED */
 #  ifndef CMARK_GFM_NO_DEPRECATED
 #    define CMARK_GFM_NO_DEPRECATED

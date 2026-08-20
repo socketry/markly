@@ -271,7 +271,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (!first_in_list_item) {
       BLANKLINE();
     }
-    info = cmark_node_get_fence_info(node);
+    info = cmark_node_get_code_info(node);
     info_len = strlen(info);
     fencechar[0] = strchr(info, '`') == NULL ? '`' : '~';
     code = cmark_node_get_literal(node);
@@ -363,6 +363,10 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     extra_spaces = code_len == 0 ||
 	    code[0] == '`' || code[code_len - 1] == '`' ||
 	    code[0] == ' ' || code[code_len - 1] == ' ';
+    if (node->as.code.info.len > 0) {
+      OUT(cmark_node_get_code_info(node), false, LITERAL);
+      LIT(":");
+    }
     for (i = 0; i < numticks; i++) {
       LIT("`");
     }
@@ -494,10 +498,13 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_FRONT_MATTER:
     if (entering) {
-      const char *info = cmark_node_get_fence_info(node);
+      const char *front_matter_info = cmark_node_get_fence_info(node);
       BLANKLINE();
       LIT("---");
-      if (info && *info) { LIT(" "); OUT(info, false, LITERAL); }
+      if (front_matter_info && *front_matter_info) {
+        LIT(" ");
+        OUT(front_matter_info, false, LITERAL);
+      }
       LIT("\n");
       OUT(cmark_node_get_literal(node), false, LITERAL);
       LIT("---\n");
