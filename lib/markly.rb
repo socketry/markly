@@ -6,7 +6,7 @@
 # Copyright, 2015-2019, by Garen Torikian.
 # Copyright, 2015, by Nick Wellnhofer.
 # Copyright, 2016-2017, by Yuki Izumi.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require "markly/markly"
 
@@ -16,14 +16,14 @@ require_relative "markly/renderer/html"
 
 require_relative "markly/version"
 
+# Parses and renders CommonMark-compatible Markdown documents.
 module Markly
-	# Public: Parses a Markdown string into a `document` node.
+	# Parse a Markdown string into a document node.
 	#
-	# string - {String} to be parsed
-	# option - A {Symbol} or {Array of Symbol}s indicating the parse options
-	# extensions - An {Array of Symbol}s indicating the extensions to use
-	#
-	# Returns the `parser` node.
+	# @parameter text [String] The Markdown text to parse.
+	# @parameter flags [Integer] The enabled parsing flags.
+	# @parameter extensions [Array(Symbol) | Nil] The extensions to enable.
+	# @returns [Markly::Node] The parsed document node.
 	def self.parse(text, flags: DEFAULT, extensions: nil)
 		parser = Parser.new(flags)
 		
@@ -34,13 +34,14 @@ module Markly
 		return parser.parse(text.encode(Encoding::UTF_8))
 	end
 	
-	# Public:  Parses a Markdown string into an HTML string.
+	# Parse a Markdown string and render it as HTML.
 	#
-	# text - A {String} of text
-	# option - Either a {Symbol} or {Array of Symbol}s indicating the render options
-	# extensions - An {Array of Symbol}s indicating the extensions to use
-	#
-	# Returns a {String} of converted HTML.
+	# @parameter text [String] The Markdown text to render.
+	# @parameter flags [Integer] The default parsing and rendering flags.
+	# @parameter parse_flags [Integer] The enabled parsing flags.
+	# @parameter render_flags [Integer] The enabled rendering flags.
+	# @parameter extensions [Array(Symbol)] The extensions to enable.
+	# @returns [String] The rendered HTML.
 	def self.render_html(text, flags: DEFAULT, parse_flags: flags, render_flags: flags, extensions: [])
 		root = self.parse(text, flags: parse_flags, extensions: extensions)
 		

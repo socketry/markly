@@ -6,6 +6,8 @@
 # Copyright, 2017-2018, by Ashe Connor.
 # Copyright, 2020-2026, by Samuel Williams.
 
+# @namespace
 module Markly
+	# @constant [String] The version of the Markly gem.
 	VERSION = "0.16.0"
 end
