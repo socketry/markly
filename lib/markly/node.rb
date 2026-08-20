@@ -16,7 +16,9 @@ module Markly
 		include Enumerable
 		include Inspect
 		
-		# Duplicate the current node and all children.
+		# Duplicate the current node and all its children.
+		#
+		# @returns [Markly::Node] The duplicated node tree.
 		def dup
 			# This is a bit crazy, but it's the best I can come up with right now:
 			node = Markly.parse(self.to_markdown)
@@ -29,9 +31,11 @@ module Markly
 			end
 		end
 		
-		# Public: An iterator that "walks the tree," descending into children recursively.
+		# Walk the node tree recursively.
 		#
-		# block - A {Proc} representing the action to take for each child
+		# @yields {|node| ...} Each node in depth-first order, including this node.
+		# 	@parameter node [Markly::Node] The current node.
+		# @returns [Enumerator | Nil] An enumerator when no block is given.
 		def walk(&block)
 			return enum_for(:walk) unless block_given?
 			
@@ -41,46 +45,47 @@ module Markly
 			end
 		end
 		
-		# Public: Convert the node to an HTML string.
+		# Convert the node to an HTML string.
 		#
-		# flags - A {Symbol} or {Array of Symbol}s indicating the render options
-		# extensions - An {Array of Symbol}s indicating the extensions to use
-		#
-		# Returns a {String}.
+		# @parameter flags [Integer] The enabled rendering flags.
+		# @parameter extensions [Array(Symbol)] The extensions to enable.
+		# @returns [String] The rendered HTML.
 		def to_html(flags: DEFAULT, extensions: [])
 			_render_html(flags, extensions).force_encoding("utf-8")
 		end
 		
-		# Public: Convert the node to a CommonMark string.
+		# Convert the node to a CommonMark string.
 		#
-		# flags - A {Symbol} or {Array of Symbol}s indicating the render options
-		# width - Column to wrap the output at
-		#
-		# Returns a {String}.
+		# @parameter flags [Integer] The enabled rendering flags.
+		# @parameter width [Integer] The column at which to wrap output, or `0` to disable wrapping.
+		# @returns [String] The rendered CommonMark text.
 		def to_commonmark(flags: DEFAULT, width: 0)
 			_render_commonmark(flags, width).force_encoding("utf-8")
 		end
 		
 		alias to_markdown to_commonmark
 		
-		# Public: Returns the language identifier from the code info string.
+		# Return the language identifier from the code info string.
 		#
-		# Returns a {String}, or `nil` when no language is present.
+		# @returns [String | Nil] The language identifier, or `nil` when none is present.
 		def code_language
 			code_info.split(/\s+/, 2).first
 		end
 		
-		# Public: Convert the node to a plain text string.
+		# Convert the node to a plain-text string.
 		#
-		# flags - A {Symbol} or {Array of Symbol}s indicating the render options
-		# width - Column to wrap the output at
-		#
-		# Returns a {String}.
+		# @parameter flags [Integer] The enabled rendering flags.
+		# @parameter width [Integer] The column at which to wrap output, or `0` to disable wrapping.
+		# @returns [String] The rendered plain text.
 		def to_plaintext(flags: DEFAULT, width: 0)
 			_render_plaintext(flags, width).force_encoding("utf-8")
 		end
 		
-		# Public: Iterate over the children (if any) of the current pointer.
+		# Iterate over the direct children of this node.
+		#
+		# @yields {|child| ...} Each direct child of this node.
+		# 	@parameter child [Markly::Node] The current child node.
+		# @returns [Enumerator | Nil] An enumerator when no block is given.
 		def each
 			return enum_for(:each) unless block_given?
 			
@@ -95,7 +100,7 @@ module Markly
 		# Finds a direct child header with the given text.
 		#
 		# @parameter title [String] The header text to match.
-		# @returns [Markly::Node, nil] The matching header, if present.
+		# @returns [Markly::Node | Nil] The matching header, if present.
 		def find_header(title)
 			each do |child|
 				if child.type == :header && child.first_child.string_content == title
@@ -106,7 +111,9 @@ module Markly
 		
 		# Delete all nodes until the block returns true.
 		#
-		# @returns [Markly::Node] the node that returned true.
+		# @yields {|node| ...} Each node before it is deleted.
+		# 	@parameter node [Markly::Node] The current node.
+		# @returns [Markly::Node | Nil] The node for which the block returned `true`, if any.
 		def delete_until
 			current = self
 			while current
@@ -119,9 +126,9 @@ module Markly
 		
 		# Replace a section (header + content) with a new node.
 		#
-		# @parameter new_node [Markly::Node] the node to replace the section with.
-		# @parameter replace_header [Boolean] whether to replace the header itself or not.
-		# @parameter remove_subsections [Boolean] whether to remove subsections or not.
+		# @parameter new_node [Markly::Node | Nil] The node with which to replace the section.
+		# @parameter replace_header [Boolean] Whether to replace the header itself.
+		# @parameter remove_subsections [Boolean] Whether to remove subsections.
 		def replace_section(new_node, replace_header: true, remove_subsections: true)
 			# Delete until the next heading:
 			self.next&.delete_until do |node|
@@ -134,7 +141,7 @@ module Markly
 		
 		# Finds the next sibling heading.
 		#
-		# @returns [Markly::Node, nil] The next heading, if present.
+		# @returns [Markly::Node | Nil] The next heading, if present.
 		def next_heading
 			current = self.next
 			while current
@@ -149,7 +156,7 @@ module Markly
 		#
 		# It's okay to provide a document node, its children will be appended.
 		#
-		# @parameter node [Markly::Node] the node to append.
+		# @parameter node [Markly::Node] The node to append.
 		def append_after(node)
 			if node.type == :document
 				node = node.first_child
@@ -168,7 +175,7 @@ module Markly
 		#
 		# It's okay to provide a document node, its children will be appended.
 		#
-		# @parameter node [Markly::Node] the node to append.
+		# @parameter node [Markly::Node] The node to append.
 		def append_before(node)
 			if node.type == :document
 				node = node.first_child
@@ -184,7 +191,7 @@ module Markly
 		
 		# Extract the children as a fragment.
 		#
-		# @returns [Markly::Node] the fragment.
+		# @returns [Markly::Node] The fragment.
 		def extract_children
 			fragment = Markly::Node.new(:custom_inline)
 			

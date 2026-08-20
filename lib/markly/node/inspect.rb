@@ -12,6 +12,7 @@ module Markly
 	class Node
 		# Provides concise pretty-printing for Markdown nodes.
 		module Inspect
+			# @constant [Integer] The indentation width used for nested node attributes.
 			PP_INDENT_SIZE = 2
 			
 			# Returns a pretty-printed representation of the node.
@@ -21,7 +22,9 @@ module Markly
 				PP.pp(self, +"", Float::INFINITY)
 			end
 			
-			# @param printer [PrettyPrint] pp
+			# Pretty-print this node and its children.
+			#
+			# @parameter printer [PrettyPrint] The pretty-print formatter.
 			def pretty_print(printer)
 				printer.group(PP_INDENT_SIZE, "#<#{self.class}(#{type}):", ">") do
 					printer.breakable

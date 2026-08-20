@@ -25,9 +25,10 @@ module Markly
 			# Initializes an HTML renderer.
 			#
 			# @parameter ids [Boolean] Whether to wrap headings in anchored sections.
-			# @parameter headings [Markly::Renderer::Headings, nil] A heading tracker to reuse.
+			# @parameter headings [Markly::Renderer::Headings | Nil] A heading tracker to reuse.
 			# @parameter tight [Boolean] Whether to render paragraphs tightly.
-			# @parameter options [Hash] Options forwarded to the generic renderer.
+			# @option :flags [Integer] The enabled rendering flags.
+			# @option :extensions [Array(Symbol)] The enabled extensions.
 			def initialize(ids: false, headings: nil, tight: false, **options)
 				super(**options)
 				
@@ -53,7 +54,7 @@ module Markly
 			# Returns an escaped HTML id attribute for a heading node.
 			#
 			# @parameter node [Markly::Node] The heading node.
-			# @returns [String, nil] The id attribute when heading IDs are enabled.
+			# @returns [String | Nil] The id attribute when heading IDs are enabled.
 			def id_for(node)
 				if @headings
 					anchor = @headings.anchor_for(node)
@@ -351,6 +352,7 @@ module Markly
 				out("<tr#{source_position(node)}>\n", :children, "</tr>\n")
 			end
 			
+			# @constant [Hash(Symbol, String)] HTML attributes for table-cell alignments.
 			TABLE_CELL_ALIGNMENT = {
 				left: ' align="left"',
 				right: ' align="right"',

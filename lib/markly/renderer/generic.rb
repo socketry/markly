@@ -9,14 +9,14 @@ require "set"
 require "stringio"
 
 module Markly
-	# Renderers for traversing and serializing Markdown node trees.
+	# @namespace
 	module Renderer
 		# Base class for renderers implemented in Ruby.
 		class Generic
 			# Initializes a renderer with rendering flags and extensions.
 			#
 			# @parameter flags [Integer] The enabled rendering flags.
-			# @parameter extensions [Array<Symbol>] The enabled extensions.
+			# @parameter extensions [Array(Symbol)] The enabled extensions.
 			def initialize(flags: DEFAULT, extensions: [])
 				@flags = flags
 				@stream = StringIO.new(+"")
@@ -26,12 +26,15 @@ module Markly
 				@tagfilter = extensions.include?(:tagfilter)
 			end
 			
+			# @attribute [Boolean] Whether the renderer is inside a tight container.
 			attr_accessor :in_tight
+			
+			# @attribute [Boolean] Whether the renderer is emitting plain text.
 			attr_accessor :in_plain
 			
 			# Writes strings, nodes, arrays of nodes, or child-node markers to the output.
 			#
-			# @parameter args [Array] Values to append or render.
+			# @parameter args [Array(Object)] Values to append or render.
 			def out(*args)
 				args.each do |arg|
 					if arg == :children
@@ -49,7 +52,7 @@ module Markly
 			# Renders a node and returns the completed output for document nodes.
 			#
 			# @parameter node [Markly::Node] The node to render.
-			# @returns [String, nil] The output string when rendering a document.
+			# @returns [String | Nil] The output string when rendering a document.
 			def render(node)
 				@node = node
 				if node.type == :document
@@ -83,6 +86,7 @@ module Markly
 			def reference_def(_node); end
 			
 			# Writes a newline unless the output is empty or already ends with one.
+			#
 			def cr
 				return if @stream.string.empty? || @stream.string[-1] == "\n"
 				
@@ -90,18 +94,20 @@ module Markly
 			end
 			
 			# Writes a separator between block-level nodes.
+			#
 			def blocksep
 				out("\n")
 			end
 			
 			# Writes a container separator unless tight rendering is enabled.
+			#
 			def containersep
 				cr unless @in_tight
 			end
 			
 			# Renders a block surrounded by normalized newlines.
 			#
-			# @yields The block content to render.
+			# @yields {|| ...} The block content to render.
 			def block
 				cr
 				yield
@@ -112,7 +118,7 @@ module Markly
 			#
 			# @parameter starter [String] The opening output.
 			# @parameter ender [String] The closing output.
-			# @yields The container content to render.
+			# @yields {|| ...} The container content to render.
 			def container(starter, ender)
 				out(starter)
 				yield
@@ -121,7 +127,7 @@ module Markly
 			
 			# Renders a block in plain-text mode, suppressing structural markup.
 			#
-			# @yields The content to render as plain text.
+			# @yields {|| ...} The content to render as plain text.
 			def plain
 				old_in_plain = @in_plain
 				@in_plain = true
