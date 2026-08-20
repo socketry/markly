@@ -26,6 +26,11 @@ int cmark_isdigit(char c);
 CMARK_GFM_EXPORT
 int cmark_isalpha(char c);
 
+/* Character classes for inline code info identifiers. */
+int cmark_is_inline_code_info_start_char(char c);
+
+int cmark_is_inline_code_info_char(char c);
+
 #ifdef __cplusplus
 }
 #endif

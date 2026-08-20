@@ -425,6 +425,18 @@ CMARK_GFM_EXPORT int cmark_node_get_item_index(cmark_node *node);
  */
 CMARK_GFM_EXPORT int cmark_node_set_item_index(cmark_node *node, int idx);
 
+/** Returns the info string from a code block or the language identifier from
+ * an inline code span.
+ */
+CMARK_GFM_EXPORT const char *cmark_node_get_code_info(cmark_node *node);
+
+/** Sets the info string in a code block or the language identifier on an
+ * inline code span, returning 1 on success and 0 on failure. Inline code
+ * language identifiers must begin with an alphanumeric character and may
+ * additionally contain '_', '-', '+', '#', and '.'.
+ */
+CMARK_GFM_EXPORT int cmark_node_set_code_info(cmark_node *node, const char *info);
+
 /** Returns the info string from a fenced code block.
  */
 CMARK_GFM_EXPORT const char *cmark_node_get_fence_info(cmark_node *node);
@@ -775,6 +787,10 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  *  interpreted (e.g. as YAML, TOML, JSON) is left to the caller.
  */
 #define CMARK_OPT_FRONT_MATTER (1 << 18)
+
+/** Parse inline code language prefixes, e.g. ruby:`code`.
+ */
+#define CMARK_OPT_INLINE_CODE_INFO (1 << 19)
 
 /**
  * ## Version information

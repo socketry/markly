@@ -24,7 +24,6 @@ static const char *RIGHTSINGLEQUOTE = "\xE2\x80\x99";
 
 // Macros for creating various kinds of simple.
 #define make_str(subj, sc, ec, s) make_literal(subj, CMARK_NODE_TEXT, sc, ec, s)
-#define make_code(subj, sc, ec, s) make_literal(subj, CMARK_NODE_CODE, sc, ec, s)
 #define make_raw_html(subj, sc, ec, s) make_literal(subj, CMARK_NODE_HTML_INLINE, sc, ec, s)
 #define make_linebreak(mem) make_simple(mem, CMARK_NODE_LINEBREAK)
 #define make_softbreak(mem) make_simple(mem, CMARK_NODE_SOFTBREAK)
@@ -101,6 +100,18 @@ static CMARK_INLINE cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
   cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
   e->type = (uint16_t)t;
+  return e;
+}
+
+static CMARK_INLINE cmark_node *make_code(subject *subj, int start_column,
+                                          int end_column, cmark_chunk literal) {
+  cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
+  cmark_strbuf_init(subj->mem, &e->content, 0);
+  e->type = CMARK_NODE_CODE;
+  e->as.code.literal = literal;
+  e->start_line = e->end_line = subj->line;
+  e->start_column = start_column + 1 + subj->column_offset + subj->block_offset;
+  e->end_column = end_column + 1 + subj->column_offset + subj->block_offset;
   return e;
 }
 
@@ -385,6 +396,39 @@ static void S_normalize_code(cmark_strbuf *s) {
 
 }
 
+static bufsize_t scan_inline_code_info_prefix(subject *subj, bufsize_t start) {
+  if (start >= subj->input.len ||
+      !cmark_is_inline_code_info_start_char((char)subj->input.data[start]) ||
+      (start > 0 && cmark_is_inline_code_info_char(
+                        (char)subj->input.data[start - 1]))) {
+    return 0;
+  }
+
+  bufsize_t pos = start + 1;
+  while (pos < subj->input.len && cmark_is_inline_code_info_char(
+                                      (char)subj->input.data[pos])) {
+    pos++;
+  }
+
+  if (pos + 1 < subj->input.len && subj->input.data[pos] == ':' &&
+      subj->input.data[pos + 1] == '`') {
+    return pos;
+  }
+
+  return 0;
+}
+
+static bufsize_t find_inline_code_info_prefix(subject *subj, bufsize_t start,
+                                              bufsize_t limit) {
+  while (start < limit) {
+    if (scan_inline_code_info_prefix(subj, start)) {
+      return start;
+    }
+    start++;
+  }
+
+  return 0;
+}
 
 // Parse backtick code section or raw backticks, return an inline.
 // Assumes that the subject has a backtick at the current position.
@@ -403,12 +447,35 @@ static cmark_node *handle_backticks(subject *subj, int options) {
                      endpos - startpos - openticks.len);
     S_normalize_code(&buf);
 
-    cmark_node *node = make_code(subj, startpos, endpos - openticks.len - 1, cmark_chunk_buf_detach(&buf));
-    adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len, options);
+    cmark_node *node = make_code(subj, startpos, endpos - openticks.len - 1,
+                                 cmark_chunk_buf_detach(&buf));
+    adjust_subj_node_newlines(subj, node, endpos - startpos, openticks.len,
+                              options);
     return node;
   }
 }
 
+static cmark_node *handle_inline_code_info(subject *subj, int options) {
+  bufsize_t startpos = subj->pos;
+  bufsize_t colonpos = scan_inline_code_info_prefix(subj, startpos);
+  if (colonpos == 0) {
+    return NULL;
+  }
+
+  cmark_chunk info =
+      cmark_chunk_dup(&subj->input, startpos, colonpos - startpos);
+  subj->pos = colonpos + 1;
+
+  cmark_node *node = handle_backticks(subj, options);
+  if (node->type != CMARK_NODE_CODE) {
+    cmark_node_free(node);
+    subj->pos = startpos;
+    return NULL;
+  }
+
+  node->as.code.info = chunk_clone(subj->mem, &info);
+  return node;
+}
 
 // Scan ***, **, or * and return number scanned, or 0.
 // Advances position.
@@ -1458,6 +1525,14 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
   if (c == 0) {
     return 0;
   }
+  if (options & CMARK_OPT_INLINE_CODE_INFO) {
+    new_inl = handle_inline_code_info(subj, options);
+  }
+  if (new_inl != NULL) {
+    append_child(parent, new_inl);
+    return 1;
+  }
+
   switch (c) {
   case '\r':
   case '\n':
@@ -1511,6 +1586,13 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
       break;
 
     endpos = subject_find_special_char(subj, options);
+    if (options & CMARK_OPT_INLINE_CODE_INFO) {
+      bufsize_t info_start =
+          find_inline_code_info_prefix(subj, subj->pos + 1, endpos);
+      if (info_start > 0 && info_start < endpos) {
+        endpos = info_start;
+      }
+    }
     contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
     startpos = subj->pos;
     subj->pos = endpos;

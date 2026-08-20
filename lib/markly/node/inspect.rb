@@ -4,7 +4,7 @@
 # Copyright, 2017, by Goro Fuji.
 # Copyright, 2017-2019, by Garen Torikian.
 # Copyright, 2020, by Olle Jonsson.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
 require "pp"
 
@@ -31,7 +31,7 @@ module Markly
 						list_type
 						list_start
 						list_tight
-						fence_info
+						code_info
 					].map do |name|
 						begin
 							[name, __send__(name)]

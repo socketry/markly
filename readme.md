@@ -24,6 +24,10 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
 Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
 
+### Unreleased
+
+  - Add opt-in language prefixes for inline code spans with `Markly::INLINE_CODE_INFO`, expose code metadata through `Node#code_info`, and provide `Node#code_language` as a convenient language accessor.
+
 ### v0.16.0
 
   - Update `cmark-gfm` from upstream, including a denial-of-service fix for tables with a large number of autocompleted cells, corrected `end_line` source positions for single-line and multi-line HTML blocks, and a fix for trailing newlines when rendering inline nodes.

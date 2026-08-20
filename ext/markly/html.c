@@ -18,6 +18,34 @@ static void escape_html(cmark_strbuf *dest, const unsigned char *source,
   houdini_escape_html0(dest, source, length, 0);
 }
 
+static bufsize_t first_code_info_tag(cmark_chunk *info) {
+  bufsize_t first_tag = 0;
+  while (first_tag < info->len && !cmark_isspace(info->data[first_tag])) {
+    first_tag += 1;
+  }
+  return first_tag;
+}
+
+static void render_code_info_attrs(cmark_strbuf *html, cmark_chunk *info,
+                                   int options, bool pre_lang) {
+  bufsize_t first_tag = first_code_info_tag(info);
+
+  if (pre_lang) {
+    cmark_strbuf_puts(html, " lang=\"");
+  } else {
+    cmark_strbuf_puts(html, " class=\"language-");
+  }
+
+  escape_html(html, info->data, first_tag);
+
+  if (first_tag < info->len && (options & CMARK_OPT_FULL_INFO_STRING)) {
+    cmark_strbuf_puts(html, "\" data-meta=\"");
+    escape_html(html, info->data + first_tag + 1, info->len - first_tag - 1);
+  }
+
+  cmark_strbuf_putc(html, '"');
+}
+
 static void filter_html_block(cmark_html_renderer *renderer, uint8_t *data, size_t len) {
   cmark_strbuf *html = renderer->html;
   cmark_llist *it;
@@ -125,7 +153,11 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     case CMARK_NODE_TEXT:
     case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_INLINE:
-      escape_html(html, node->as.literal.data, node->as.literal.len);
+      if (node->type == CMARK_NODE_CODE) {
+        escape_html(html, node->as.code.literal.data, node->as.code.literal.len);
+      } else {
+        escape_html(html, node->as.literal.data, node->as.literal.len);
+      }
       break;
 
     case CMARK_NODE_LINEBREAK:
@@ -220,32 +252,17 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
       cmark_html_render_sourcepos(node, html, options);
       cmark_strbuf_puts(html, "><code>");
     } else {
-      bufsize_t first_tag = 0;
-      while (first_tag < node->as.code.info.len &&
-             !cmark_isspace(node->as.code.info.data[first_tag])) {
-        first_tag += 1;
-      }
-
       if (options & CMARK_OPT_GITHUB_PRE_LANG) {
         cmark_strbuf_puts(html, "<pre");
         cmark_html_render_sourcepos(node, html, options);
-        cmark_strbuf_puts(html, " lang=\"");
-        escape_html(html, node->as.code.info.data, first_tag);
-        if (first_tag < node->as.code.info.len && (options & CMARK_OPT_FULL_INFO_STRING)) {
-          cmark_strbuf_puts(html, "\" data-meta=\"");
-          escape_html(html, node->as.code.info.data + first_tag + 1, node->as.code.info.len - first_tag - 1);
-        }
-        cmark_strbuf_puts(html, "\"><code>");
+        render_code_info_attrs(html, &node->as.code.info, options, true);
+        cmark_strbuf_puts(html, "><code>");
       } else {
         cmark_strbuf_puts(html, "<pre");
         cmark_html_render_sourcepos(node, html, options);
-        cmark_strbuf_puts(html, "><code class=\"language-");
-        escape_html(html, node->as.code.info.data, first_tag);
-        if (first_tag < node->as.code.info.len && (options & CMARK_OPT_FULL_INFO_STRING)) {
-          cmark_strbuf_puts(html, "\" data-meta=\"");
-          escape_html(html, node->as.code.info.data + first_tag + 1, node->as.code.info.len - first_tag - 1);
-        }
-        cmark_strbuf_puts(html, "\">");
+        cmark_strbuf_puts(html, "><code");
+        render_code_info_attrs(html, &node->as.code.info, options, false);
+        cmark_strbuf_putc(html, '>');
       }
     }
 
@@ -327,8 +344,12 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
     break;
 
   case CMARK_NODE_CODE:
-    cmark_strbuf_puts(html, "<code>");
-    escape_html(html, node->as.literal.data, node->as.literal.len);
+    cmark_strbuf_puts(html, "<code");
+    if (node->as.code.info.len > 0) {
+      render_code_info_attrs(html, &node->as.code.info, options, false);
+    }
+    cmark_strbuf_putc(html, '>');
+    escape_html(html, node->as.code.literal.data, node->as.code.literal.len);
     cmark_strbuf_puts(html, "</code>");
     break;
 

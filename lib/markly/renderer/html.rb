@@ -149,14 +149,16 @@ module Markly
 			
 			def code_block(node)
 				block do
+					language = node.code_language
+					
 					if flag_enabled?(GITHUB_PRE_LANG)
 						out("<pre#{source_position(node)}")
-						out(' lang="', node.fence_info.split(/\s+/)[0], '"') if node.fence_info && !node.fence_info.empty?
+						out(' lang="', language, '"') if language
 						out("><code>")
 					else
 						out("<pre#{source_position(node)}><code")
-						if node.fence_info && !node.fence_info.empty?
-							out(' class="language-', node.fence_info.split(/\s+/)[0], '">')
+						if language
+							out(' class="language-', language, '">')
 						else
 							out(">")
 						end
@@ -216,7 +218,10 @@ module Markly
 			end
 			
 			def code(node)
-				out("<code>")
+				language = node.code_language
+				out("<code")
+				out(' class="language-', language, '"') if language
+				out(">")
 				out(escape_html(node.string_content))
 				out("</code>")
 			end

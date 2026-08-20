@@ -72,11 +72,22 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
       literal = true;
       break;
     case CMARK_NODE_TEXT:
-    case CMARK_NODE_CODE:
     case CMARK_NODE_HTML_BLOCK:
     case CMARK_NODE_HTML_INLINE:
       cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
       escape_xml(xml, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_puts(xml, "</");
+      cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
+      literal = true;
+      break;
+    case CMARK_NODE_CODE:
+      if (node->as.code.info.len > 0) {
+        cmark_strbuf_puts(xml, " info=\"");
+        escape_xml(xml, node->as.code.info.data, node->as.code.info.len);
+        cmark_strbuf_putc(xml, '"');
+      }
+      cmark_strbuf_puts(xml, " xml:space=\"preserve\">");
+      escape_xml(xml, node->as.code.literal.data, node->as.code.literal.len);
       cmark_strbuf_puts(xml, "</");
       cmark_strbuf_puts(xml, cmark_node_get_type_string(node));
       literal = true;
