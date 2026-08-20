@@ -70,6 +70,11 @@ describe Markly::Renderer::HTML do
 			expect(Markly::Renderer::HTML.anchor_for(header)).to be == "hello-world"
 		end
 		
+		it "works as an instance method" do
+			header = document.first_child
+			expect(renderer.anchor_for(header)).to be == "hello-world"
+		end
+		
 		it "handles edge cases properly" do
 			test_cases = [
 				["# Multiple    Spaces", "multiple-spaces"],
@@ -160,6 +165,41 @@ describe Markly::Renderer::HTML do
 		
 		it "generates the same output as the built in renderer" do
 			expect(renderer.render(document)).to be == document.to_html
+		end
+	end
+	
+	with "render flags" do
+		it "renders fenced code languages on the pre element" do
+			document = Markly.parse("```ruby\nputs 'Hello'\n```")
+			renderer = subject.new(flags: Markly::GITHUB_PRE_LANG)
+			
+			expect(renderer.render(document)).to be == "<pre lang=\"ruby\"><code>puts 'Hello'\n</code></pre>\n"
+		end
+		
+		it "omits unsafe block HTML" do
+			document = Markly.parse("<div>Unsafe</div>")
+			
+			expect(renderer.render(document)).to be == "<!-- raw HTML omitted -->\n"
+		end
+		
+		it "omits unsafe inline HTML" do
+			document = Markly.parse("Before <span>unsafe</span> after")
+			
+			expect(renderer.render(document)).to be == "<p>Before <!-- raw HTML omitted -->unsafe<!-- raw HTML omitted --> after</p>\n"
+		end
+		
+		it "renders soft breaks as hard breaks" do
+			document = Markly.parse("One\nTwo")
+			renderer = subject.new(flags: Markly::HARD_BREAKS)
+			
+			expect(renderer.render(document)).to be == "<p>One<br />\nTwo</p>\n"
+		end
+		
+		it "renders soft breaks as spaces" do
+			document = Markly.parse("One\nTwo")
+			renderer = subject.new(flags: Markly::NO_BREAKS)
+			
+			expect(renderer.render(document)).to be == "<p>One Two</p>\n"
 		end
 	end
 end

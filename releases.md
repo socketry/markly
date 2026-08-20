@@ -4,6 +4,9 @@
 
   - Add opt-in language prefixes for inline code spans with `Markly::INLINE_CODE_INFO`, expose code metadata through `Node#code_info`, and provide `Node#code_language` as a convenient language accessor.
   - Expose fenced code-block metadata through `Node#fence` and `Node::Fence`.
+  - Add `Node#next_header`, retain `Node#next_heading` as an alias, and correctly recognize header nodes.
+  - Raise `NotImplementedError` from the base renderer's unimplemented code-block callback instead of recursing indefinitely.
+  - Remove unused legacy separator helpers from the Ruby renderer.
 
 ## v0.16.0
 

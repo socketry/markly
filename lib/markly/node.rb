@@ -139,18 +139,21 @@ module Markly
 			self.delete if replace_header
 		end
 		
-		# Finds the next sibling heading.
+		# Finds the next sibling header.
 		#
-		# @returns [Markly::Node | Nil] The next heading, if present.
-		def next_heading
+		# @returns [Markly::Node | Nil] The next header, if present.
+		def next_header
 			current = self.next
 			while current
-				if current.type == :heading
+				if current.type == :header
 					return current
 				end
 				current = current.next
 			end
 		end
+		
+		# An alias for {ruby Markly::Node#next_header}.
+		alias next_heading next_header
 		
 		# Append the given node after the current node.
 		#

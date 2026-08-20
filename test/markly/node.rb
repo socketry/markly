@@ -262,6 +262,28 @@ describe Markly::Node do
 		end
 	end
 	
+	with "#next_header" do
+		let(:document) {Markly.parse("# Heading\n\nParagraph\n\n## Subheading")}
+		
+		it "finds the next sibling heading" do
+			heading = document.first_child
+			expect(heading.next_header).to be == heading.next.next
+		end
+		
+		it "returns nil when there is no subsequent heading" do
+			expect(document.last_child.next_header).to be_nil
+		end
+	end
+	
+	with "#next_heading" do
+		it "is an alias for #next_header" do
+			document = Markly.parse("# Heading\n\n## Subheading")
+			heading = document.first_child
+			
+			expect(heading.next_heading).to be == heading.next_header
+		end
+	end
+	
 	with "#replace_section" do
 		let(:document) {Markly.parse("# Heading\n\n## Subheading")}
 		let(:new_document) {Markly.parse("### New Heading")}
