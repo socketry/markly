@@ -9,5 +9,5 @@
 # @namespace
 module Markly
 	# @constant [String] The version of the Markly gem.
-	VERSION = "0.16.0"
+	VERSION = "0.17.0"
 end

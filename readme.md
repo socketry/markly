@@ -24,13 +24,19 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
 Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
 
-### Unreleased
+### v0.17.0
 
   - Add opt-in language prefixes for inline code spans with `Markly::INLINE_CODE_INFO`, expose code metadata through `Node#code_info`, and provide `Node#code_language` as a convenient language accessor.
+  - Expose fenced code-block metadata through `Node#fence` and `Node::Fence`.
+  - Add `Node#next_header`, retain `Node#next_heading` as an alias, and correctly recognize header nodes.
+  - Raise `NotImplementedError` from the base renderer's unimplemented code-block callback instead of recursing indefinitely.
+  - Remove unused legacy separator helpers from the Ruby renderer.
 
 ### v0.16.0
 
-  - Update `cmark-gfm` from upstream, including a denial-of-service fix for tables with a large number of autocompleted cells, corrected `end_line` source positions for single-line and multi-line HTML blocks, and a fix for trailing newlines when rendering inline nodes.
+  - Update `cmark-gfm` from upstream, including two table-rendering protections: avoid repeatedly scanning preceding cells, and limit the number of automatically completed cells to prevent denial of service.
+  - Correct `end_line` source positions for single-line and multi-line HTML blocks.
+  - Fix trailing newlines when rendering inline nodes.
   - Add support for front matter (`CMARK_OPT_FRONT_MATTER`): a `---` delimited block at the start of a document is captured as a `CMARK_NODE_FRONT_MATTER` node.  The raw content is available via `node.string_content` and an optional format hint (e.g. `"yaml"`, `"toml"`) via `node.fence_info`.
   - Allow `:` in HTML tag names to support XML namespace prefixes (e.g. `<svg:circle>`, `<xhtml:div>`).
 
