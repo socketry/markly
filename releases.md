@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.19.0
 
   - Add `Markly::HTML_BLOCK_BLANK_LINES` for keeping consistently indented HTML content together across blank lines.
 

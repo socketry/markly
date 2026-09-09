@@ -26,6 +26,10 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
 Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
 
+### v0.19.0
+
+  - Add `Markly::HTML_BLOCK_BLANK_LINES` for keeping consistently indented HTML content together across blank lines.
+
 ### v0.18.0
 
   - Preserve complete node and extension metadata when duplicating node trees.
