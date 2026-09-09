@@ -68,12 +68,12 @@ def synchronize_upstream
 	
 	root = Build::Files::Path[context.root]
 	ext_markly = root/"ext/markly"
-	cmark_gfm = root/"cmark-gfm"
+	cmarkly = root/"cmarkly"
 	
-	(cmark_gfm/"src").glob("**/*").copy(ext_markly)
-	(cmark_gfm/"extensions").glob("**/*").copy(ext_markly/"extensions")
-	(cmark_gfm/"build/src").glob("config.h").copy(ext_markly)
-	(cmark_gfm/"build/src").glob("cmark-gfm_export.h").copy(ext_markly)
-	(cmark_gfm/"build/src").glob("cmark-gfm_version.h").copy(ext_markly)
-	(cmark_gfm/"build/extensions").glob("cmark-gfm-extensions_export.h").copy(ext_markly/"extensions")
+	(cmarkly/"src").glob("**/*").copy(ext_markly)
+	(cmarkly/"extensions").glob("**/*").copy(ext_markly/"extensions")
+	(cmarkly/"build/src").glob("config.h").copy(ext_markly)
+	(cmarkly/"build/src").glob("cmark-gfm_export.h").copy(ext_markly)
+	(cmarkly/"build/src").glob("cmark-gfm_version.h").copy(ext_markly)
+	(cmarkly/"build/extensions").glob("cmark-gfm-extensions_export.h").copy(ext_markly/"extensions")
 end
