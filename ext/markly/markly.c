@@ -271,6 +271,21 @@ static VALUE Markly_Node_new(VALUE self, VALUE type) {
 	return Markly_Node_wrap(node);
 }
 
+/*
+ * Duplicate the current node and all its children.
+ */
+static VALUE Markly_Node_duplicate(VALUE self) {
+	cmark_node *node;
+	TypedData_Get_Struct(self, cmark_node, &Markly_Node_Type, node);
+
+	cmark_node *copy = cmark_node_clone(node);
+	if (copy == NULL) {
+		rb_raise(Markly_Error, "could not duplicate node");
+	}
+
+	return Markly_Node_wrap(copy);
+}
+
 static VALUE Markly_Node_replace(VALUE self, VALUE other) {
 	cmark_node *current_node = NULL, *replacement_node = NULL;
 	
@@ -1273,6 +1288,7 @@ static void Init_Markly_Node(VALUE Markly) {
 	rb_undef_alloc_func(Markly_Node);
 	rb_define_singleton_method(Markly_Node, "new", Markly_Node_new, 1);
 	Markly_Node_Fence = rb_struct_define_under(Markly_Node, "Fence", "character", "length", "indent", NULL);
+	rb_define_method(Markly_Node, "_dup", Markly_Node_duplicate, 0);
 
 	rb_define_method(Markly_Node, "replace", Markly_Node_replace, 1);
 

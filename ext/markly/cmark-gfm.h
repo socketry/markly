@@ -196,6 +196,12 @@ CMARK_GFM_EXPORT cmark_node *cmark_node_new_with_mem_and_ext(cmark_node_type typ
                                                 cmark_mem *mem,
                                                 cmark_syntax_extension *extension);
 
+/** Creates an independent deep copy of 'node' and all its children.
+ * User data is not copied. Returns NULL when extension-specific node data
+ * cannot be copied.
+ */
+CMARK_GFM_EXPORT cmark_node *cmark_node_clone(cmark_node *node);
+
 /** Frees the memory allocated for a node and any children.
  */
 CMARK_GFM_EXPORT void cmark_node_free(cmark_node *node);

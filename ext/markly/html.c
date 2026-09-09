@@ -303,7 +303,7 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_PARAGRAPH:
     parent = cmark_node_parent(node);
-    grandparent = cmark_node_parent(parent);
+    grandparent = parent ? cmark_node_parent(parent) : NULL;
     if (grandparent != NULL && grandparent->type == CMARK_NODE_LIST) {
       tight = grandparent->as.list.tight;
     } else {
@@ -316,7 +316,8 @@ static int S_render_node(cmark_html_renderer *renderer, cmark_node *node,
         cmark_html_render_sourcepos(node, html, options);
         cmark_strbuf_putc(html, '>');
       } else {
-        if (parent->type == CMARK_NODE_FOOTNOTE_DEFINITION && node->next == NULL) {
+        if (parent && parent->type == CMARK_NODE_FOOTNOTE_DEFINITION &&
+            node->next == NULL) {
           cmark_strbuf_putc(html, ' ');
           S_put_footnote_backref(renderer, html, parent);
         }

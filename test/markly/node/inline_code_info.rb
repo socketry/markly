@@ -33,6 +33,14 @@ describe Markly::Node do
 			expect(document.to_commonmark).to be == "ruby:`Object.new`\n"
 		end
 		
+		it "preserves the language when duplicated" do
+			copy = document.dup
+			code = copy.first_child.first_child
+			
+			expect(code.code_info).to be == "ruby"
+			expect(copy.to_html).to be == document.to_html
+		end
+		
 		it "can update and clear the language" do
 			code.code_info = "c++"
 			expect(code.code_info).to be == "c++"

@@ -28,6 +28,7 @@ struct cmark_syntax_extension {
   cmark_postprocess_func          postprocess_func;
   cmark_opaque_alloc_func         opaque_alloc_func;
   cmark_opaque_free_func          opaque_free_func;
+  cmark_opaque_copy_func          opaque_copy_func;
   cmark_commonmark_escape_func    commonmark_escape_func;
 };
 

@@ -264,6 +264,10 @@ typedef void (*cmark_opaque_free_func) (cmark_syntax_extension *extension,
                                         cmark_mem *mem,
                                         cmark_node *node);
 
+typedef void (*cmark_opaque_copy_func)(cmark_syntax_extension *extension,
+                                       cmark_mem *mem, cmark_node *node,
+                                       cmark_node *source);
+
 /** Free a cmark_syntax_extension.
  */
 CMARK_GFM_EXPORT
@@ -405,6 +409,12 @@ void cmark_syntax_extension_set_opaque_alloc_func(cmark_syntax_extension *extens
 CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_opaque_free_func(cmark_syntax_extension *extension,
                                                  cmark_opaque_free_func func);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_GFM_EXPORT
+void cmark_syntax_extension_set_opaque_copy_func(
+    cmark_syntax_extension *extension, cmark_opaque_copy_func func);
 
 /** See the documentation for 'cmark_syntax_extension'
  */

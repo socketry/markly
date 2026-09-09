@@ -20,15 +20,7 @@ module Markly
 		#
 		# @returns [Markly::Node] The duplicated node tree.
 		def dup
-			# This is a bit crazy, but it's the best I can come up with right now:
-			node = Markly.parse(self.to_markdown)
-			
-			# If we aren't duplicating a document, we return `first_child` as the root will be a document node:
-			if self.type == :document
-				return node
-			else
-				return node.first_child
-			end
+			_dup
 		end
 		
 		# Walk the node tree recursively.

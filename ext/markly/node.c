@@ -145,6 +145,144 @@ cmark_node *cmark_node_new(cmark_node_type type) {
   return cmark_node_new_with_ext(type, NULL);
 }
 
+static cmark_chunk S_clone_chunk(cmark_mem *mem, const cmark_chunk *source) {
+  cmark_chunk clone = {NULL, source->len, 1};
+  clone.data = (unsigned char *)mem->calloc(source->len + 1, 1);
+  if (source->len > 0) {
+    memcpy(clone.data, source->data, source->len);
+  }
+  return clone;
+}
+
+static cmark_node *S_clone_node(cmark_node *node) {
+  cmark_mem *mem = NODE_MEM(node);
+  cmark_node *clone = cmark_node_new_with_mem_and_ext(
+      (cmark_node_type)node->type, mem, node->extension);
+
+  if (!clone) {
+    return NULL;
+  }
+
+  cmark_strbuf_set(&clone->content, node->content.ptr, node->content.size);
+  clone->start_line = node->start_line;
+  clone->start_column = node->start_column;
+  clone->end_line = node->end_line;
+  clone->end_column = node->end_column;
+  clone->internal_offset = node->internal_offset;
+  clone->flags = node->flags;
+  clone->footnote = node->footnote;
+
+  switch (node->type) {
+  case CMARK_NODE_HEADING:
+    clone->as.heading = node->as.heading;
+    break;
+  case CMARK_NODE_LIST:
+  case CMARK_NODE_ITEM:
+    clone->as.list = node->as.list;
+    break;
+  case CMARK_NODE_CODE_BLOCK:
+  case CMARK_NODE_FRONT_MATTER:
+  case CMARK_NODE_CODE:
+    clone->as.code = node->as.code;
+    clone->as.code.info = S_clone_chunk(mem, &node->as.code.info);
+    clone->as.code.literal = S_clone_chunk(mem, &node->as.code.literal);
+    break;
+  case CMARK_NODE_TEXT:
+  case CMARK_NODE_HTML_INLINE:
+  case CMARK_NODE_HTML_BLOCK:
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    clone->as.literal = S_clone_chunk(mem, &node->as.literal);
+    break;
+  case CMARK_NODE_LINK:
+  case CMARK_NODE_IMAGE:
+    clone->as.link.url = S_clone_chunk(mem, &node->as.link.url);
+    clone->as.link.title = S_clone_chunk(mem, &node->as.link.title);
+    break;
+  case CMARK_NODE_CUSTOM_BLOCK:
+  case CMARK_NODE_CUSTOM_INLINE:
+    clone->as.custom.on_enter = S_clone_chunk(mem, &node->as.custom.on_enter);
+    clone->as.custom.on_exit = S_clone_chunk(mem, &node->as.custom.on_exit);
+    break;
+  default:
+    break;
+  }
+
+  if (node->extension && node->extension->opaque_alloc_func) {
+    if (!node->extension->opaque_copy_func) {
+      cmark_node_free(clone);
+      return NULL;
+    }
+
+    node->extension->opaque_copy_func(node->extension, mem, clone, node);
+  }
+
+  for (cmark_node *child = node->first_child; child; child = child->next) {
+    cmark_node *child_clone = S_clone_node(child);
+    if (!child_clone) {
+      cmark_node_free(clone);
+      return NULL;
+    }
+
+    if (!cmark_node_append_child(clone, child_clone)) {
+      cmark_node_free(child_clone);
+      cmark_node_free(clone);
+      return NULL;
+    }
+  }
+
+  return clone;
+}
+
+static cmark_node *S_find_clone(cmark_node *source, cmark_node *clone,
+                                cmark_node *target) {
+  if (source == target) {
+    return clone;
+  }
+
+  cmark_node *source_child = source->first_child;
+  cmark_node *clone_child = clone->first_child;
+  while (source_child && clone_child) {
+    cmark_node *result = S_find_clone(source_child, clone_child, target);
+    if (result) {
+      return result;
+    }
+    source_child = source_child->next;
+    clone_child = clone_child->next;
+  }
+
+  return NULL;
+}
+
+static void S_clone_footnote_links(cmark_node *source, cmark_node *clone,
+                                   cmark_node *source_root,
+                                   cmark_node *clone_root) {
+  if (source->parent_footnote_def) {
+    clone->parent_footnote_def =
+        S_find_clone(source_root, clone_root, source->parent_footnote_def);
+  }
+
+  cmark_node *source_child = source->first_child;
+  cmark_node *clone_child = clone->first_child;
+  while (source_child && clone_child) {
+    S_clone_footnote_links(source_child, clone_child, source_root, clone_root);
+    source_child = source_child->next;
+    clone_child = clone_child->next;
+  }
+}
+
+cmark_node *cmark_node_clone(cmark_node *node) {
+  if (!node) {
+    return NULL;
+  }
+
+  cmark_node *clone = S_clone_node(node);
+  if (clone) {
+    S_clone_footnote_links(node, clone, node, clone);
+  }
+  return clone;
+}
+
 static void free_node_as(cmark_node *node) {
   switch (node->type) {
     case CMARK_NODE_CODE_BLOCK:

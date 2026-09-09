@@ -25,6 +25,14 @@ describe Markly::Node do
 			expect(dup.to_html).to be == document.first_child.to_html
 			expect(dup).not.to be_equal(document.first_child)
 		end
+		
+		it "preserves extension metadata" do
+			document = Markly.parse("| Left | Right |\n| :--- | ---: |\n| A | B |\n", extensions: [:table])
+			dup = document.dup
+			
+			expect(dup.first_child.table_alignments).to be == [:left, :right]
+			expect(dup.to_html(extensions: [:table])).to be == document.to_html(extensions: [:table])
+		end
 	end
 	
 	with "#type" do
