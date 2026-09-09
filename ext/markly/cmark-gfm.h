@@ -802,7 +802,7 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  * blank lines. The indentation established by the HTML content must be
  * preserved after each blank line.
  */
-#define CMARK_OPT_INDENTED_HTML_BLOCKS (1 << 20)
+#define CMARK_OPT_HTML_BLOCK_BLANK_LINES (1 << 20)
 
 /**
  * ## Version information

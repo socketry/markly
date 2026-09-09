@@ -210,14 +210,14 @@ Without the flag, the prefix remains ordinary text. Inline code information is
 a single language token; richer code-block information belongs on a fenced code
 block instead.
 
-### Indented HTML Blocks
+### HTML Block Blank Lines
 
 CommonMark ends type 6 and 7 HTML blocks at the first blank line. This can be
 surprising when a large HTML fragment is formatted with blank lines between
 consistently indented child elements: the following child is parsed as Markdown,
 often as an indented code block.
 
-`Markly::INDENTED_HTML_BLOCKS` allows those HTML blocks to continue across blank
+`Markly::HTML_BLOCK_BLANK_LINES` allows those HTML blocks to continue across blank
 lines when their content establishes and preserves indentation:
 
 ``` ruby
@@ -231,7 +231,7 @@ MARKDOWN
 
 Markly.render_html(
 	markdown,
-	parse_flags: Markly::INDENTED_HTML_BLOCKS,
+	parse_flags: Markly::HTML_BLOCK_BLANK_LINES,
 	render_flags: Markly::UNSAFE,
 )
 ```

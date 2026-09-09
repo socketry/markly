@@ -5,8 +5,8 @@
 
 require "markly"
 
-describe Markly::INDENTED_HTML_BLOCKS do
-	let(:flags) {Markly::INDENTED_HTML_BLOCKS}
+describe Markly::HTML_BLOCK_BLANK_LINES do
+	let(:flags) {Markly::HTML_BLOCK_BLANK_LINES}
 	
 	it "preserves CommonMark behavior by default" do
 		markdown = "<div>\n\t<p>one</p>\n\n\t<p>two</p>\n</div>\n"

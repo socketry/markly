@@ -1051,7 +1051,7 @@ static bool parse_html_block_prefix(cmark_parser *parser,
     break;
   case 6:
   case 7:
-    if (!(parser->options & CMARK_OPT_INDENTED_HTML_BLOCKS)) {
+    if (!(parser->options & CMARK_OPT_HTML_BLOCK_BLANK_LINES)) {
       res = !parser->blank;
     } else if (parser->blank) {
       // Tentatively retain blank lines. The next nonblank line determines

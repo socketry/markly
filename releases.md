@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-  - Add `Markly::INDENTED_HTML_BLOCKS` for keeping consistently indented HTML content together across blank lines.
+  - Add `Markly::HTML_BLOCK_BLANK_LINES` for keeping consistently indented HTML content together across blank lines.
 
 ## v0.18.0
 

@@ -45,7 +45,7 @@ Markly accepts integer flags which control how the Markdown is parsed and render
 | `Markly::FRONT_MATTER`               | Parse front matter at the start of the document.
 | `Markly::FOOTNOTES`                  | Parse footnotes.
 | `Markly::INLINE_CODE_INFO`           | Parse language prefixes such as `ruby:` on inline code spans.
-| `Markly::INDENTED_HTML_BLOCKS`       | Allow consistently indented HTML content to continue across blank lines.
+| `Markly::HTML_BLOCK_BLANK_LINES`     | Allow consistently indented HTML content to continue across blank lines.
 | `Markly::LIBERAL_HTML_TAG`           | Support liberal parsing of inline HTML tags.
 | `Markly::SMART`                      | Use smart punctuation (curly quotes, etc.).
 | `Markly::STRIKETHROUGH_DOUBLE_TILDE` | Parse strikethroughs by double tildes (compatibility with [redcarpet](https://github.com/vmg/redcarpet))
