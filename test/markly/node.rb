@@ -33,6 +33,70 @@ describe Markly::Node do
 			expect(dup.first_child.table_alignments).to be == [:left, :right]
 			expect(dup.to_html(extensions: [:table])).to be == document.to_html(extensions: [:table])
 		end
+		
+		it "preserves mixed node and extension metadata" do
+			flags = Markly::UNSAFE | Markly::FRONT_MATTER | Markly::FOOTNOTES | Markly::INLINE_CODE_INFO
+			extensions = %i[table tasklist strikethrough autolink tagfilter]
+			document = Markly.parse(<<~MARKDOWN, flags: flags, extensions: extensions)
+				--- yaml
+				title: Clone
+				---
+				# Heading
+				
+				> Quote with **strong** and *emphasis*.
+				
+				3. Ordered
+				4. List
+				
+				- [x] Complete
+				- [ ] Pending
+				
+				~~~~ ruby lineno=1
+				puts "fenced"
+				~~~~
+				
+				    indented
+				
+				Call ruby:`Object.new`, follow [link](url "title"), or view ![alt](image.png "image title").
+				
+				| Left | Right |
+				| :--- | ---: |
+				| A | B |
+				
+				~deleted~ and https://example.com
+				
+				<script>alert("filtered")</script>
+				
+				Footnote[^note].
+				
+				[^note]: Definition.
+			MARKDOWN
+			
+			copy = document.dup
+			original_nodes = document.walk.to_a
+			copied_nodes = copy.walk.to_a
+			
+			expect(copied_nodes.map(&:type)).to be == original_nodes.map(&:type)
+			expect(copied_nodes.map(&:source_position)).to be == original_nodes.map(&:source_position)
+			expect(copy.to_html(flags: Markly::UNSAFE, extensions: extensions)).to be == document.to_html(flags: Markly::UNSAFE, extensions: extensions)
+			expect(copy.to_commonmark).to be == document.to_commonmark
+			
+			ordered_list = copied_nodes.find{|node| node.type == :list && node.list_type == :ordered_list}
+			expect(ordered_list.list_start).to be == 3
+			
+			fenced = copied_nodes.find{|node| node.type == :code_block && node.fence}
+			expect(fenced.fence).to be == Markly::Node::Fence.new("~", 4, 0)
+			expect(fenced.code_info).to be == "ruby lineno=1"
+			
+			inline_code = copied_nodes.find{|node| node.type == :code}
+			expect(inline_code.code_info).to be == "ruby"
+			
+			table = copied_nodes.find{|node| node.type == :table}
+			expect(table.table_alignments).to be == [:left, :right]
+			
+			footnote_reference = copied_nodes.find{|node| node.type == :footnote_reference}
+			expect(copied_nodes).to be(:include?, footnote_reference.parent_footnote_def)
+		end
 	end
 	
 	with "#type" do
