@@ -91,8 +91,8 @@ static CMARK_INLINE bool S_ends_on_current_line(cmark_parser *parser, cmark_node
          // similar to fenced code blocks.
          // Types 6-7 end at a blank line, so their last content line is
          // the previous line and they should NOT match here.
-         (S_type(b) == CMARK_NODE_HTML_BLOCK && b->as.html_block_type >= 1 &&
-          b->as.html_block_type <= 5) ||
+         (S_type(b) == CMARK_NODE_HTML_BLOCK && b->as.html_block.type >= 1 &&
+          b->as.html_block.type <= 5) ||
          // Single-line blocks: finalized on same line they started
          b->start_line == parser->line_number;
 }
@@ -1037,7 +1037,7 @@ static bool parse_code_block_prefix(cmark_parser *parser, cmark_chunk *input,
 static bool parse_html_block_prefix(cmark_parser *parser,
                                     cmark_node *container) {
   bool res = false;
-  int html_block_type = container->as.html_block_type;
+  int html_block_type = container->as.html_block.type;
 
   assert(html_block_type >= 1 && html_block_type <= 7);
   switch (html_block_type) {
@@ -1051,7 +1051,32 @@ static bool parse_html_block_prefix(cmark_parser *parser,
     break;
   case 6:
   case 7:
-    res = !parser->blank;
+    if (!(parser->options & CMARK_OPT_HTML_BLOCK_BLANK_LINES)) {
+      res = !parser->blank;
+    } else if (parser->blank) {
+      // Tentatively retain blank lines. The next nonblank line determines
+      // whether the HTML block continues:
+      res = true;
+    } else if (S_last_line_blank(container)) {
+      // Establish the content indentation lazily so a blank line may follow
+      // the opening tag. A non-indented line still terminates the block:
+      if (container->as.html_block.indent == 0 && parser->indent > 0) {
+        container->as.html_block.indent = parser->indent;
+      }
+
+      res = container->as.html_block.indent > 0 &&
+            parser->indent >= container->as.html_block.indent;
+    } else {
+      // Record the shallowest positive content indentation before a blank
+      // line. Deeper nested HTML may then continue without changing it:
+      if (parser->indent > 0 &&
+          (container->as.html_block.indent == 0 ||
+           parser->indent < container->as.html_block.indent)) {
+        container->as.html_block.indent = parser->indent;
+      }
+
+      res = true;
+    }
     break;
   }
 
@@ -1224,7 +1249,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                                    input, parser->first_nonspace))))) {
       *container = add_child(parser, *container, CMARK_NODE_HTML_BLOCK,
                              parser->first_nonspace + 1);
-      (*container)->as.html_block_type = matched;
+      (*container)->as.html_block.type = matched;
       // note, we don't adjust parser->offset because the tag is part of the
       // text
     } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
@@ -1421,7 +1446,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
       add_line(container, input, parser);
 
       int matches_end_condition;
-      switch (container->as.html_block_type) {
+      switch (container->as.html_block.type) {
       case 1:
         // </script>, </style>, </pre>
         matches_end_condition =

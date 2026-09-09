@@ -34,6 +34,11 @@ typedef struct {
 } cmark_code;
 
 typedef struct {
+  int type;
+  int indent;
+} cmark_html_block;
+
+typedef struct {
   int level;
   bool setext;
 } cmark_heading;
@@ -104,7 +109,7 @@ struct cmark_node {
     cmark_heading heading;
     cmark_link link;
     cmark_custom custom;
-    int html_block_type;
+    cmark_html_block html_block;
     int cell_index; // For keeping track of TABLE_CELL table alignments
     void *opaque;
   } as;
