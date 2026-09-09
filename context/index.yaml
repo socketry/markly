@@ -10,6 +10,9 @@ files:
 - path: getting-started.md
   title: Getting Started
   description: This guide explains now to install and use Markly.
+- path: extensions.md
+  title: Extensions
+  description: This guide explains how to enable and use Markly's Markdown extensions.
 - path: abstract-syntax-tree.md
   title: Abstract Syntax Tree
   description: This guide explains how to use Markly's abstract syntax tree (AST)
