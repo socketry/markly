@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.18.0
 
   - Preserve complete node and extension metadata when duplicating node trees.
 

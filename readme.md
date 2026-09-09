@@ -24,6 +24,10 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
 Please see the [project releases](https://socketry.github.io/markly/releases/index) for all releases.
 
+### v0.18.0
+
+  - Preserve complete node and extension metadata when duplicating node trees.
+
 ### v0.17.0
 
   - Add opt-in language prefixes for inline code spans with `Markly::INLINE_CODE_INFO`, expose code metadata through `Node#code_info`, and provide `Node#code_language` as a convenient language accessor.
