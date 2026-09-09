@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add `Markly::INDENTED_HTML_BLOCKS` for keeping consistently indented HTML content together across blank lines.
+
 ## v0.18.0
 
   - Preserve complete node and extension metadata when duplicating node trees.

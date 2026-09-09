@@ -798,6 +798,12 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_INLINE_CODE_INFO (1 << 19)
 
+/** Allow indented content in type 6 and 7 HTML blocks to continue across
+ * blank lines. The indentation established by the HTML content must be
+ * preserved after each blank line.
+ */
+#define CMARK_OPT_INDENTED_HTML_BLOCKS (1 << 20)
+
 /**
  * ## Version information
  */

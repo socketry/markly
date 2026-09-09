@@ -25,10 +25,13 @@ module Markly
 	FRONT_MATTER = 1 << 18
 	# Parse language prefixes on inline code spans, e.g. ruby:`Object.new`.
 	INLINE_CODE_INFO = 1 << 19
+	# Allow consistently indented HTML content to continue across blank lines.
+	INDENTED_HTML_BLOCKS = 1 << 20
 	
 	PARSE_FLAGS = {
 		front_matter: FRONT_MATTER,
 		inline_code_info: INLINE_CODE_INFO,
+		indented_html_blocks: INDENTED_HTML_BLOCKS,
 		validate_utf8: VALIDATE_UTF8,
 		smart_quotes: SMART,
 		liberal_html_tags: LIBERAL_HTML_TAG,
