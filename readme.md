@@ -16,6 +16,8 @@ Please see the [project documentation](https://socketry.github.io/markly/) for m
 
   - [Getting Started](https://socketry.github.io/markly/guides/getting-started/index) - This guide explains now to install and use Markly.
 
+  - [Extensions](https://socketry.github.io/markly/guides/extensions/index) - This guide explains how to enable and use Markly's Markdown extensions.
+
   - [Abstract Syntax Tree](https://socketry.github.io/markly/guides/abstract-syntax-tree/index) - This guide explains how to use Markly's abstract syntax tree (AST) to parse and manipulate Markdown documents.
 
   - [Headings](https://socketry.github.io/markly/guides/headings/index) - This guide explains how to work with headings in Markly, including extracting them for navigation and handling duplicate heading text.

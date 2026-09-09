@@ -78,57 +78,21 @@ To have multiple options applied, `|` (or) the flags together:
 Markly.render_html("\"'Shelob' is my name.\"", flags: Markly::HARD_BREAKS|Markly::SOURCE_POSITION)
 ```
 
-Inline code language prefixes are opt-in. The language is available through
-`Node#code_info` and is rendered as a `language-...` class:
-
-``` ruby
-document = Markly.parse("ruby:`Object.new`", flags: Markly::INLINE_CODE_INFO)
-code = document.first_child.first_child
-
-code.code_info
-# => "ruby"
-
-code.code_language
-# => "ruby"
-
-document.to_html
-# => <p><code class="language-ruby">Object.new</code></p>
-```
-
-`Node#code_info` is also the general info-string accessor for fenced code
-blocks and front matter. `Node#code_language` returns the first token of that
-info string, while `Node#fence_info` remains available for compatibility on
-those block nodes.
-
-For a fenced code block, `Node#fence` returns a `Node::Fence` structure with
-the fence character, length, and indentation:
-
-``` ruby
-block = Markly.parse("  ~~~~ ruby\n  Object.new\n  ~~~~").first_child
-
-block.fence
-# => #<struct Markly::Node::Fence character="~", length=4, indent=2>
-```
-
-Indented code blocks and other node types return `nil`.
-
 ## Extensions
 
-Both `render_html` and `parse` take an optional `extensions:` argument defining the extensions you want enabled as your CommonMark document is being processed:
+Markly parses standard CommonMark by default. GitHub Flavored Markdown syntax
+and Markly-specific syntax are opt-in so applications can choose their accepted
+Markdown dialect explicitly:
 
 ``` ruby
-Markly.render_html("<script>hi</script>", flags: Markly::UNSAFE, extensions: [:tagfilter])
+Markly.render_html(
+	"| Name | Status |\n| --- | --- |\n| Markly | Ready |",
+	extensions: [:table],
+)
 ```
 
-The documentation for these extensions are [defined in this spec](https://github.github.com/gfm/), and the rationale is provided [in this blog post](https://githubengineering.com/a-formal-spec-for-github-markdown/).
-
-The available extensions are:
-
-  - `:table` - This provides support for tables.
-  - `:tasklist` - This provides support for task list items.
-  - `:strikethrough` - This provides support for strikethroughs.
-  - `:autolink` - This provides support for automatically converting URLs to anchor tags.
-  - `:tagfilter` - This escapes [several "unsafe" HTML tags](https://github.github.com/gfm/#disallowed-raw-html-extension-), causing them to not have any effect.
+See [Extensions](../extensions/index) for the supported extensions, related
+flags, and generated AST.
 
 ## Developing Locally
 
