@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Preserve complete node and extension metadata when duplicating node trees.
+
 ## v0.17.0
 
   - Add opt-in language prefixes for inline code spans with `Markly::INLINE_CODE_INFO`, expose code metadata through `Node#code_info`, and provide `Node#code_language` as a convenient language accessor.

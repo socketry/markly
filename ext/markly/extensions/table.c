@@ -842,6 +842,29 @@ static void opaque_free(cmark_syntax_extension *self, cmark_mem *mem, cmark_node
   }
 }
 
+static void opaque_copy(cmark_syntax_extension *self, cmark_mem *mem,
+                        cmark_node *node, cmark_node *source) {
+  if (node->type == CMARK_NODE_TABLE) {
+    node_table *table = (node_table *)node->as.opaque;
+    node_table *source_table = (node_table *)source->as.opaque;
+
+    table->n_columns = source_table->n_columns;
+    table->n_rows = source_table->n_rows;
+    table->n_nonempty_cells = source_table->n_nonempty_cells;
+
+    if (source_table->alignments) {
+      table->alignments = mem->calloc(source_table->n_columns, sizeof(uint8_t));
+      memcpy(table->alignments, source_table->alignments,
+             source_table->n_columns * sizeof(uint8_t));
+    }
+  } else if (node->type == CMARK_NODE_TABLE_ROW) {
+    *(node_table_row *)node->as.opaque = *(node_table_row *)source->as.opaque;
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    mem->free(node->as.opaque);
+    node->as.cell_index = source->as.cell_index;
+  }
+}
+
 static int escape(cmark_syntax_extension *self, cmark_node *node, int c) {
   return
     node->type != CMARK_NODE_TABLE &&
@@ -867,6 +890,7 @@ cmark_syntax_extension *create_table_extension(void) {
   cmark_syntax_extension_set_html_render_func(self, html_render);
   cmark_syntax_extension_set_opaque_alloc_func(self, opaque_alloc);
   cmark_syntax_extension_set_opaque_free_func(self, opaque_free);
+  cmark_syntax_extension_set_opaque_copy_func(self, opaque_copy);
   cmark_syntax_extension_set_commonmark_escape_func(self, escape);
   CMARK_NODE_TABLE = cmark_syntax_extension_add_node(0);
   CMARK_NODE_TABLE_ROW = cmark_syntax_extension_add_node(0);
