@@ -28,6 +28,7 @@ struct cmark_renderer {
   void (*blankline)(struct cmark_renderer *);
   void (*out)(struct cmark_renderer *, cmark_node *, const char *, bool, cmark_escaping);
   unsigned int footnote_ix;
+  bool outc_verbatim;
 };
 
 typedef struct cmark_renderer cmark_renderer;
@@ -46,6 +47,8 @@ typedef struct cmark_html_renderer cmark_html_renderer;
 void cmark_render_ascii(cmark_renderer *renderer, const char *s);
 
 void cmark_render_code_point(cmark_renderer *renderer, uint32_t c);
+
+// A NULL outc writes every code point unchanged, which lets S_out copy runs.
 
 char *cmark_render(cmark_mem *mem, cmark_node *root, int options, int width,
                    void (*outc)(cmark_renderer *, cmark_node *,

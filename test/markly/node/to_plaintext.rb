@@ -44,4 +44,33 @@ describe Markly do
 	it "can generate plaintext" do
 		expect(document.to_plaintext).to be == PLAINTEXT
 	end
+	
+	with "text the renderer copies in runs" do
+		it "wraps at the width inside a list item" do
+			document = Markly.parse("- Alice keeps the radio-manual-v2.pdf in a drawer next to the old radio.")
+			
+			expect(document.to_plaintext(width: 20)).to be == "  - Alice keeps the\n    radio-manual-v2.pdf\n    in a drawer next\n    to the old\n    radio.\n"
+		end
+		
+		it "keeps multibyte characters intact" do
+			document = Markly.parse("> Déjà vu: l'été à Zürich 日本 😀")
+			
+			expect(document.to_plaintext).to be == "Déjà vu: l'été à Zürich 日本 😀\n"
+		end
+		
+		it "indents every line of a code block in a list item" do
+			document = Markly.parse("1. item\n\n   ```\n   code line one\n   code line two\n   ```")
+			
+			expect(document.to_plaintext).to be == "1.  item\n    \n    code line one\n    code line two\n"
+		end
+		
+		it "stops at invalid UTF-8 in a text node built through the API" do
+			document = Markly.parse("- item")
+			text = Markly::Node.new(:text)
+			text.string_content = "valid \xFF lost".b.force_encoding(Encoding::UTF_8)
+			document.first_child.first_child.first_child.append_child(text)
+			
+			expect(document.to_plaintext).to be == "  - itemvalid \n"
+		end
+	end
 end
