@@ -72,5 +72,11 @@ describe Markly do
 			
 			expect(document.to_plaintext).to be == "  - itemvalid \n"
 		end
+		
+		it "writes U+FFFE and U+FFFF as cmark's encoder does" do
+			document = Markly.parse("a\u{FFFE}b \u{FFFF}c")
+			
+			expect(document.to_plaintext).to be == "a\xFEb \xFFc\n"
+		end
 	end
 end
