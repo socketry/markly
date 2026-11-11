@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Speed up `Node#to_plaintext` by copying runs of unchanged text in one append instead of decoding and re-encoding each character (`parse` + `to_plaintext` 1.3 to 1.7 times faster).
+
 ## v0.19.0
 
   - Add `Markly::HTML_BLOCK_BLANK_LINES` for keeping consistently indented HTML content together across blank lines.
